@@ -80,17 +80,17 @@ export default function Page() {
               Log in
             </button>
             <span className="rounded-lg p-2 font-bold text-sm mt-12 self-center">
-              Don&apos;t have an account?
+              Don&apos;t have an account?{' '}
+              <button
+                className="text-blue-500"
+                type="button"
+                onClick={() => {
+                  router.push('/register')
+                }}
+              >
+                Sign in
+              </button>
             </span>
-            <button
-              className="btn btn-secondary rounded-lg p-2 w-[90px] mt-4 mx-4 self-center font-bold"
-              type="button"
-              onClick={() => {
-                router.push('/register')
-              }}
-            >
-              Register
-            </button>
           </div>
         </form>
       </div>
