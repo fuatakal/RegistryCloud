@@ -20,4 +20,33 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+
+  @layer components {
+    .btn {
+      @apply rounded-full text-gray-200 px-2 hover:text-white px-2 py-1 sm:py-2 sm:px-4 text-sm;
+      transition:
+        background-color 0.3s ease,
+        color 0.3s ease;
+    }
+
+    .btn-danger {
+      @apply bg-red-700   hover:bg-red-500;
+    }
+
+    .btn-primary {
+      @apply bg-green-600 hover:bg-green-400;
+    }
+
+    .btn-secondary {
+      @apply bg-indigo-600 hover:bg-indigo-400;
+    }
+
+    .btn-warning {
+      @apply bg-orange-600 hover:bg-orange-400;
+    }
+
+    .alert {
+      @apply absolute bottom-20 flex items-center justify-center flex-wrap right-0 sm:w-[340px] sm:h-[100px] w-[240px] h-[85px] ml-auto mr-8 rounded-2xl p-4;
+    }
+  }
 }

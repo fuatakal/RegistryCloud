@@ -38,21 +38,17 @@ export default function Page() {
 
       if (response.status === 200) {
         router.push('/')
-      } else {
-        // Handle the case where login failed
-        console.error('Login failed')
-        showAlert('danger', 'Check your email and password.')
       }
     } catch (error) {
       // Handle any network error or invalid response
       console.error('Login error:', error)
-      showAlert('danger', 'An error occurred while logging in.')
+      showAlert('danger', 'Check your email and password.')
     }
   }
 
   return (
-    <main className="h-[90vh]">
-      <div className="container max-w-2xl h-[70vh] mx-auto mt-12 rounded-3xl bg-indigo-600 p-6">
+    <main className=" h-screen bg-custom-purple flex items-center justify-center">
+      <div className="container max-w-2xl mx-auto mt-12 rounded-3xl bg-indigo-300 p-6">
         <form onSubmit={handleLogIn}>
           <div className="flex flex-col flex-wrap">
             <span className="text-3xl font-bold self-center my-4 p-2">
@@ -60,7 +56,7 @@ export default function Page() {
             </span>
 
             <input
-              className="bg-slate-700 rounded-xl mt-12 p-2"
+              className="bg-slate-100 rounded-xl mt-12 p-2"
               required
               type="email"
               placeholder="Email"
@@ -68,7 +64,7 @@ export default function Page() {
               onChange={(e) => setEmail(e.target.value)}
             />
             <input
-              className="bg-slate-700 rounded-xl mt-12 p-2"
+              className="bg-slate-100 rounded-xl mt-12 p-2"
               required
               type="password"
               placeholder="Password"
@@ -77,16 +73,16 @@ export default function Page() {
             />
 
             <button
-              className="bg-green-600 rounded-lg p-2 w-[90px] mt-12 mx-4 self-center font-bold"
+              className="btn btn-primary rounded-lg p-2 w-[90px] mt-12 mx-4 self-center font-bold"
               type="submit"
             >
               Log in
             </button>
-            <span className=" bg-orange-700 rounded-lg p-2 font-bold text-sm mt-12 self-center">
+            <span className="rounded-lg p-2 font-bold text-sm mt-12 self-center">
               Don&apos;t have an account?
             </span>
             <button
-              className=" bg-red-900 rounded-lg p-2 w-[90px] mt-4 mx-4 self-center font-bold"
+              className="btn btn-secondary rounded-lg p-2 w-[90px] mt-4 mx-4 self-center font-bold"
               type="button"
               onClick={() => {
                 router.push('/register')
