@@ -37,7 +37,8 @@ export default function Page() {
       )
 
       if (response.status === 200) {
-        router.push('/')
+        localStorage.setItem('jwtToken', response.data.access)
+        router.push('/home')
       }
     } catch (error) {
       // Handle any network error or invalid response
