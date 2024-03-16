@@ -48,7 +48,7 @@ export default function Register() {
         router.push('/login') // Redirect to login page after successful registration
       }
     } catch (error) {
-      console.error('Registration error:', error)
+      // console.error('Registration error:', error)
       showAlert('danger', 'Registration failed. Please try again.') // Show alert for registration failure
     }
   }

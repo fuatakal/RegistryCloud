@@ -9,7 +9,6 @@ function Navbar({ links }) {
 
   // Function to toggle the dropdown visibility
   const toggleDropdown = () => {
-    console.log(isOpen)
     setIsOpen(!isOpen)
   }
 
