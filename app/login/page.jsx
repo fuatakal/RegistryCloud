@@ -42,7 +42,7 @@ export default function Page() {
       }
     } catch (error) {
       // Handle any network error or invalid response
-      console.error('Login error:', error)
+      // console.error('Login error:', error)
       showAlert('danger', 'Check your email and password.')
     }
   }
@@ -89,6 +89,18 @@ export default function Page() {
                 }}
               >
                 Sign in
+              </button>
+            </span>
+            <span className="rounded-lg p-2 font-bold text-sm mt-12 self-center">
+              Forget password?{' '}
+              <button
+                className="text-blue-500"
+                type="button"
+                onClick={() => {
+                  router.push('/reset-password')
+                }}
+              >
+                Reset Password
               </button>
             </span>
           </div>

@@ -38,14 +38,14 @@ export default function Home() {
         }
       } catch (error) {
         // If an error occurs during token validation, redirect to login page
-        console.error('Token validation error:', error)
+        // console.error('Token validation error:', error)
         setLoading(false)
         router.push('/login')
       }
     }
 
     checkToken()
-  }, [])
+  })
 
   const navbarLinks = [
     { href: '/', key: 'test', name: 'test' },
