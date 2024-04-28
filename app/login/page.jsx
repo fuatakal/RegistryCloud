@@ -3,14 +3,17 @@
 import React, { useState, useContext } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import { useAtom } from 'jotai'
 import AlertContext from '../context/AlertContext'
 import Alert from '../components/Alert'
+import tokenAtom from '../../atoms/tokenAtom'
 
 export default function Page() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [, setAlert] = useContext(AlertContext)
+  const [, setToken] = useAtom(tokenAtom)
 
   const showAlert = (type, text) => {
     setAlert({
@@ -37,7 +40,9 @@ export default function Page() {
       )
 
       if (response.status === 200) {
+        // TODO: Remove local storage when neccesary
         localStorage.setItem('jwtToken', response.data.access)
+        setToken(response.data.access)
         router.push('/home')
       }
     } catch (error) {
