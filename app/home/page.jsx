@@ -3,17 +3,21 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import { useAtom } from 'jotai'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
+import tokenAtom from '../../atoms/tokenAtom'
 
 export default function Home() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
+  const [sessionToken] = useAtom(tokenAtom)
 
   useEffect(() => {
     const checkToken = async () => {
       try {
-        // Simulate checking the JWT token (Replace with actual code)
+        // Simulate checking the JWT token
+        // TODO: replace with sessionToken when neccesary
         const token = localStorage.getItem('jwtToken')
         if (token) {
           // If token exists, you can perform a validation request to the server
@@ -48,8 +52,9 @@ export default function Home() {
   })
 
   const navbarLinks = [
-    { href: '/', key: 'test', name: 'test' },
-    { href: '/', key: 'test2', name: 'test2' },
+    { href: '/', key: '1001', name: 'Home' },
+    { href: '/', key: '1002', name: 'MyForms' },
+    { href: '/', key: '1003', name: 'CreateForm' },
   ]
 
   return (
@@ -62,7 +67,11 @@ export default function Home() {
         </div>
       ) : (
         // Content after token check
-        <div className="min-h-screen">hello</div>
+        <div className="min-h-screen flex p-12 justify-center">
+          <div className="container flex p-12 rounded-xl bg-slate-100 w-[75rem]">
+            <h1>Hello</h1>
+          </div>
+        </div>
       )}
       <Footer />
     </main>
