@@ -3,15 +3,21 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import React from 'react'
+// import { useAtom } from 'jotai'
 import { useAtom } from 'jotai'
-import Navbar from '../components/Navbar'
-import Footer from '../components/Footer'
-import tokenAtom from '../../atoms/tokenAtom'
+import Navbar from '../../components/Navbar'
+import userAtom from '../../atoms/userInfoAtom'
+import navLinksAtom from '@/atoms/navLinksAtom'
+import { User } from '@/types'
+// import tokenAtom from '../../atoms/tokenAtom'
 
 export default function Home() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
-  const [sessionToken] = useAtom(tokenAtom)
+  const [user, setUser] = useAtom(userAtom)
+  const [navbarLinks, setNavbarLinks] = useAtom(navLinksAtom)
+  // const [sessionToken] = useAtom(tokenAtom)
 
   useEffect(() => {
     const checkToken = async () => {
@@ -33,11 +39,18 @@ export default function Home() {
 
           if (response.status === 200) {
             // If token is valid, proceed to the homepage
+            const links = JSON.parse(
+              localStorage.getItem('navBarLinks') || '[]'
+            )
+            const userFromStorage = JSON.parse(
+              localStorage.getItem('user') || 'null'
+            ) as User
+            setNavbarLinks(links)
+            setUser(userFromStorage)
             setLoading(false)
           }
         } else {
           // If token does not exist, redirect to login page
-          setLoading(false)
           router.push('/login')
         }
       } catch (error) {
@@ -49,17 +62,11 @@ export default function Home() {
     }
 
     checkToken()
-  })
-
-  const navbarLinks = [
-    { href: '/', key: '1001', name: 'Home' },
-    { href: '/', key: '1002', name: 'MyForms' },
-    { href: '/', key: '1003', name: 'CreateForm' },
-  ]
+  }, [])
 
   return (
     <main>
-      <Navbar links={navbarLinks} />
+      <Navbar links={navbarLinks} username={user?.email || ''} />
       {loading ? (
         // Loading screen while checking token
         <div className="min-h-screen flex justify-center items-center">
@@ -73,7 +80,6 @@ export default function Home() {
           </div>
         </div>
       )}
-      <Footer />
     </main>
   )
 }

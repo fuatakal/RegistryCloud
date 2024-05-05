@@ -1,0 +1,42 @@
+'use client'
+
+import React from 'react'
+import Navbar from './Navbar'
+import { staffLinks } from '@/constants'
+import { useAtom } from 'jotai'
+import userAtom from '@/atoms/userInfoAtom'
+import { FaSave, FaShare, FaTrash } from 'react-icons/fa'
+import Designer from './Designer'
+import { DndContext } from '@dnd-kit/core'
+
+const FormBuilder = () => {
+  const [user] = useAtom(userAtom)
+  return (
+    <DndContext>
+      <main className="flex flex-col w-full">
+        <Navbar links={staffLinks} username={user?.email || ''} />
+        <div className="flex justify-between border-b-2 p-4 items-center gap-3">
+          <h2>
+            Form:<span className=" font-bold"> Form 1</span>
+          </h2>
+          <div className="flex gap-2">
+            <button className="btn btn-outline btn-success">
+              Save <FaSave />
+            </button>
+            <button className="btn btn-outline btn-primary">
+              Publish <FaShare />
+            </button>
+            <button className="btn btn-outline btn-error">
+              Delete <FaTrash />
+            </button>
+          </div>
+        </div>
+        <div className="flex w-full items-center justify-center relative h-[600px] bg-neutral-content">
+          <Designer />
+        </div>
+      </main>
+    </DndContext>
+  )
+}
+
+export default FormBuilder

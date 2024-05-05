@@ -1,30 +1,44 @@
 'use client'
 
-import React, { useState, useContext } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import { useAtom } from 'jotai'
-import AlertContext from '../context/AlertContext'
-import Alert from '../components/Alert'
 import tokenAtom from '../../atoms/tokenAtom'
+import navLinksAtom from '@/atoms/navLinksAtom'
+import { staffLinks } from '@/constants'
+import userAtom from '@/atoms/userInfoAtom'
+import { Paths } from '@/routes'
 
 export default function Page() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [, setAlert] = useContext(AlertContext)
   const [, setToken] = useAtom(tokenAtom)
+  const [, setNavbarLinks] = useAtom(navLinksAtom)
+  const [, setUser] = useAtom(userAtom)
 
-  const showAlert = (type, text) => {
-    setAlert({
-      type,
-      text,
-    })
+  const getUserInfo = async (accessToken: string) => {
+    try {
+      const response = await axios.get('http://localhost:8000/auth/users/me/', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+      setUser(response.data)
+      localStorage.setItem('user', JSON.stringify(response.data))
+      setNavbarLinks(staffLinks)
+      localStorage.setItem('navBarLinks', JSON.stringify(staffLinks))
+      console.log(staffLinks)
+      router.push(Paths.HOME)
+    } catch (error) {
+      // Handle any network error or invalid response
+      console.error('Login error:', error)
+    }
   }
 
-  const handleLogIn = async (e) => {
+  const handleLogIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-
     try {
       const response = await axios.post(
         'http://localhost:8000/auth/jwt/create/',
@@ -43,18 +57,17 @@ export default function Page() {
         // TODO: Remove local storage when neccesary
         localStorage.setItem('jwtToken', response.data.access)
         setToken(response.data.access)
-        router.push('/home')
+        await getUserInfo(response.data.access)
       }
     } catch (error) {
       // Handle any network error or invalid response
-      // console.error('Login error:', error)
-      showAlert('danger', 'Check your email and password.')
+      console.error('Login error:', error)
     }
   }
 
   return (
-    <main className=" h-screen bg-custom-purple flex items-center justify-center">
-      <div className="container max-w-2xl mx-auto mt-12 rounded-3xl bg-indigo-300 p-6">
+    <main className="h-screen flex items-center justify-center ">
+      <div className="container card-body max-w-2xl mx-auto mt-12 shadow-lg rounded-3xl p-6 bg-base-200">
         <form onSubmit={handleLogIn}>
           <div className="flex flex-col flex-wrap">
             <span className="text-3xl font-bold self-center my-4 p-2">
@@ -62,7 +75,7 @@ export default function Page() {
             </span>
 
             <input
-              className="bg-slate-100 rounded-xl mt-12 p-2"
+              className="input input-bordered w-full max-w-xxl self-center mt-12"
               required
               type="email"
               placeholder="Email"
@@ -70,7 +83,7 @@ export default function Page() {
               onChange={(e) => setEmail(e.target.value)}
             />
             <input
-              className="bg-slate-100 rounded-xl mt-12 p-2"
+              className="input input-bordered w-full max-w-xxl self-center my-8"
               required
               type="password"
               placeholder="Password"
@@ -111,8 +124,6 @@ export default function Page() {
           </div>
         </form>
       </div>
-
-      <Alert />
     </main>
   )
 }

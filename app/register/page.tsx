@@ -1,37 +1,34 @@
 'use client'
 
-import React, { useState, useContext } from 'react'
+import React, { ChangeEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
-import AlertContext from '../context/AlertContext'
-import Alert from '../components/Alert'
+
+interface RegisterProps {
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+  re_password: string
+}
 
 export default function Register() {
   const router = useRouter()
-  const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
+  const [formData, setFormData] = useState<RegisterProps>({
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
+    re_password: '',
   })
-  const [, setAlert] = useContext(AlertContext)
   // eslint-disable-next-line camelcase
   const { firstName, lastName, email, password, re_password } = formData
 
-  const showAlert = (type, text) => {
-    setAlert({
-      type,
-      text,
-    })
-  }
-
-  const onChange = (e) => {
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleRegister = async (e) => {
-    e.preventDefault()
-
+  const handleRegister = async () => {
     try {
       const response = await axios.post(
         'http://localhost:8000/auth/users/',
@@ -48,14 +45,13 @@ export default function Register() {
         router.push('/login') // Redirect to login page after successful registration
       }
     } catch (error) {
-      // console.error('Registration error:', error)
-      showAlert('danger', 'Registration failed. Please try again.') // Show alert for registration failure
+      console.error('Registration error:', error)
     }
   }
 
   return (
-    <main className="h-screen bg-custom-purple flex items-center justify-center">
-      <div className="container max-w-2xl mx-auto mt-12 rounded-3xl bg-indigo-300 p-6">
+    <main className="h-screen flex items-center justify-center">
+      <div className="container max-w-2xl mx-auto mt-12 rounded-3xl bg-base-200 p-6">
         <form onSubmit={handleRegister}>
           <div className="flex flex-col flex-wrap">
             <span className="text-3xl font-bold self-center my-4 p-2">
@@ -63,7 +59,7 @@ export default function Register() {
             </span>
 
             <input
-              className="bg-slate-100 rounded-xl mt-12 p-2"
+              className="input input-bordered w-full max-w-xxl self-center mt-12"
               required
               type="text"
               placeholder="First Name"
@@ -73,7 +69,7 @@ export default function Register() {
             />
 
             <input
-              className="bg-slate-100 rounded-xl mt-12 p-2"
+              className="input input-bordered w-full max-w-xxl self-center mt-12"
               required
               type="text"
               placeholder="Last Name"
@@ -83,7 +79,7 @@ export default function Register() {
             />
 
             <input
-              className="bg-slate-100 rounded-xl mt-12 p-2"
+              className="input input-bordered w-full max-w-xxl self-center mt-12"
               required
               type="email"
               placeholder="Email"
@@ -92,7 +88,7 @@ export default function Register() {
               onChange={onChange}
             />
             <input
-              className="bg-slate-100 rounded-xl mt-12 p-2"
+              className="input input-bordered w-full max-w-xxl self-center mt-12"
               required
               type="password"
               placeholder="Password"
@@ -102,7 +98,7 @@ export default function Register() {
             />
 
             <input
-              className="bg-slate-100 rounded-xl mt-12 p-2"
+              className="input input-bordered w-full max-w-xxl self-center mt-12"
               required
               type="password"
               placeholder="Rewrite your Password"
@@ -133,8 +129,6 @@ export default function Register() {
           </div>
         </form>
       </div>
-
-      <Alert />
     </main>
   )
 }
