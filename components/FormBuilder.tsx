@@ -8,6 +8,7 @@ import userAtom from '@/atoms/userInfoAtom'
 import { FaSave, FaShare, FaTrash } from 'react-icons/fa'
 import Designer from './Designer'
 import { DndContext } from '@dnd-kit/core'
+import DragOverlayWrapper from './DragOverlayWrapper'
 
 const FormBuilder = () => {
   const [user] = useAtom(userAtom)
@@ -35,6 +36,7 @@ const FormBuilder = () => {
           <Designer />
         </div>
       </main>
+      <DragOverlayWrapper />
     </DndContext>
   )
 }
