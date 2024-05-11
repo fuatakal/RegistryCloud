@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import axios from 'axios'
 
 interface RegisterProps {
-  firstName: string
-  lastName: string
+  first_name: string
+  last_name: string
   email: string
   password: string
   re_password: string
@@ -15,14 +15,14 @@ interface RegisterProps {
 export default function Register() {
   const router = useRouter()
   const [formData, setFormData] = useState<RegisterProps>({
-    firstName: '',
-    lastName: '',
+    first_name: '',
+    last_name: '',
     email: '',
     password: '',
     re_password: '',
   })
   // eslint-disable-next-line camelcase
-  const { firstName, lastName, email, password, re_password } = formData
+  const { first_name, last_name, email, password, re_password } = formData
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -30,20 +30,13 @@ export default function Register() {
 
   const handleRegister = async () => {
     try {
-      const response = await axios.post(
-        'http://localhost:8000/auth/users/',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      )
+      await axios.post('http://localhost:8000/auth/users/', formData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
 
-      if (response.status === 201) {
-        // Assuming the server responds with status 201 upon successful registration
-        router.push('/login') // Redirect to login page after successful registration
-      }
+      router.push('/login') // Redirect to login page after successful registration
     } catch (error) {
       console.error('Registration error:', error)
     }
@@ -64,7 +57,7 @@ export default function Register() {
               type="text"
               placeholder="First Name"
               name="first_name"
-              value={firstName}
+              value={first_name}
               onChange={onChange}
             />
 
@@ -74,7 +67,7 @@ export default function Register() {
               type="text"
               placeholder="Last Name"
               name="last_name"
-              value={lastName}
+              value={last_name}
               onChange={onChange}
             />
 

@@ -1,23 +1,26 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
-import React from 'react'
-// import { useAtom } from 'jotai'
 import { useAtom } from 'jotai'
 import Navbar from '../../components/Navbar'
 import userAtom from '../../atoms/userInfoAtom'
 import navLinksAtom from '@/atoms/navLinksAtom'
-import { User } from '@/types'
-// import tokenAtom from '../../atoms/tokenAtom'
+import { Form, User } from '@/types'
+import CreateFormBtn from '@/components/CreateFormBtn'
+import { useFormApi } from '@/hooks/form'
+import DashboardFormItem from '@/components/DashboardFormItem'
 
 export default function Home() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
+  const [forms, setForms] = useState<Form[]>([])
+
   const [user, setUser] = useAtom(userAtom)
   const [navbarLinks, setNavbarLinks] = useAtom(navLinksAtom)
-  // const [sessionToken] = useAtom(tokenAtom)
+
+  const { getForms } = useFormApi()
 
   useEffect(() => {
     const checkToken = async () => {
@@ -27,7 +30,7 @@ export default function Home() {
         const token = localStorage.getItem('jwtToken')
         if (token) {
           // If token exists, you can perform a validation request to the server
-          const response = await axios.post(
+          await axios.post(
             'http://localhost:8000/auth/jwt/verify/',
             { token },
             {
@@ -37,21 +40,18 @@ export default function Home() {
             }
           )
 
-          if (response.status === 200) {
-            // If token is valid, proceed to the homepage
-            const links = JSON.parse(
-              localStorage.getItem('navBarLinks') || '[]'
-            )
-            const userFromStorage = JSON.parse(
-              localStorage.getItem('user') || 'null'
-            ) as User
-            setNavbarLinks(links)
-            setUser(userFromStorage)
-            setLoading(false)
-          }
-        } else {
-          // If token does not exist, redirect to login page
-          router.push('/login')
+          // If token is valid, proceed to the homepage
+          const links = JSON.parse(localStorage.getItem('navBarLinks') || '[]')
+          const userFromStorage = JSON.parse(
+            localStorage.getItem('user') || 'null'
+          ) as User
+
+          const forms = await getForms()
+          setForms(forms)
+
+          setNavbarLinks(links)
+          setUser(userFromStorage)
+          setLoading(false)
         }
       } catch (error) {
         // If an error occurs during token validation, redirect to login page
@@ -75,8 +75,14 @@ export default function Home() {
       ) : (
         // Content after token check
         <div className="min-h-screen flex p-12 justify-center">
-          <div className="container flex p-12 rounded-xl bg-slate-100 w-[75rem]">
-            <h1>Hello</h1>
+          <div className="container flex flex-col gap-4 p-12 rounded-xl bg-base-200 w-[75rem]">
+            <CreateFormBtn />
+            <div className="divider divider-neutral mb-8" />
+            <ul>
+              {forms.map((form) => (
+                <DashboardFormItem key={form.id} name={form.name} />
+              ))}
+            </ul>
           </div>
         </div>
       )}

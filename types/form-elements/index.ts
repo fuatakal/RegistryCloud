@@ -20,7 +20,9 @@ export interface FormElement {
     elementInstance: FormElementInstance
   }>
   formComponent: React.FC
-  propertiesComponent: React.FC
+  propertiesComponent: React.FC<{
+    elementInstance: FormElementInstance
+  }>
 }
 
 type FormElementsType = {

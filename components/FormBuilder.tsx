@@ -7,13 +7,21 @@ import { useAtom } from 'jotai'
 import userAtom from '@/atoms/userInfoAtom'
 import { FaSave, FaShare, FaTrash } from 'react-icons/fa'
 import Designer from './Designer'
-import { DndContext } from '@dnd-kit/core'
+import { DndContext, MouseSensor, useSensor, useSensors } from '@dnd-kit/core'
 import DragOverlayWrapper from './DragOverlayWrapper'
 
 const FormBuilder = () => {
   const [user] = useAtom(userAtom)
+
+  const mouseSensor = useSensor(MouseSensor, {
+    activationConstraint: {
+      distance: 20,
+    },
+  })
+  const sensors = useSensors(mouseSensor)
+
   return (
-    <DndContext>
+    <DndContext sensors={sensors}>
       <main className="flex flex-col w-full">
         <Navbar links={staffLinks} username={user?.email || ''} />
         <div className="flex justify-between border-b-2 p-4 items-center gap-3">
