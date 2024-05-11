@@ -22,6 +22,10 @@ export default function Home() {
 
   const { getForms } = useFormApi()
 
+  const handleClickOnForm = (id: number) => {
+    console.log(id)
+  }
+
   useEffect(() => {
     const checkToken = async () => {
       try {
@@ -80,7 +84,14 @@ export default function Home() {
             <div className="divider divider-neutral mb-8" />
             <ul>
               {forms.map((form) => (
-                <DashboardFormItem key={form.id} name={form.name} />
+                <DashboardFormItem
+                  key={form.id}
+                  name={form.name}
+                  description={form.description}
+                  onClick={() => {
+                    handleClickOnForm(form.id)
+                  }}
+                />
               ))}
             </ul>
           </div>
