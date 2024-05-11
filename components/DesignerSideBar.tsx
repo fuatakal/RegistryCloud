@@ -1,17 +1,19 @@
 'use client'
 
-import { FormElements } from '@/types/form-elements'
 import React from 'react'
-import SidebarBtnElement from './SidebarBtnElement'
+import { useAtom } from 'jotai'
+import selectedElementAtom from '@/atoms/selectedElementAtom'
+import FormElementsSidebar from './FormElementsSidebar'
+import PropertiesFormSidebar from './PropertiesFormSidebar'
 
 const DesignerSideBar = () => {
+  const [selectedElement] = useAtom(selectedElementAtom)
   return (
     <aside
       className="w-[400px] max-w-[400px] flex flex-col flex-grow gap-2 order-l-2 
     border-muted p-4 bg-background overflow-y-auto h-full"
     >
-      DesignerSideBar
-      <SidebarBtnElement formElement={FormElements.TextField} />
+      {!selectedElement ? <FormElementsSidebar /> : <PropertiesFormSidebar />}
     </aside>
   )
 }

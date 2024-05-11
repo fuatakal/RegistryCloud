@@ -11,3 +11,12 @@ export interface User {
   is_staff: boolean
   is_active: boolean
 }
+
+export interface Form {
+  id: number
+  name: string
+  description: string
+  creator: number
+  questions: Array<string>
+  attenders: Array<string>
+}
