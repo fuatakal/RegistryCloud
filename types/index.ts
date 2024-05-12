@@ -1,3 +1,5 @@
+import { FormElementInstance } from './form-elements'
+
 export interface NavLink {
   href: string
   name: string
@@ -5,6 +7,7 @@ export interface NavLink {
 }
 
 export interface User {
+  id: number
   first_name: string
   last_name: string
   email: string
@@ -13,10 +16,10 @@ export interface User {
 }
 
 export interface Form {
-  id: number
-  name: string
-  description: string
-  creator: number
-  questions: Array<string>
-  attenders: Array<string>
+  id?: number
+  name?: string
+  description?: string
+  creator?: number
+  questions?: FormElementInstance[]
+  attenders?: number[]
 }
