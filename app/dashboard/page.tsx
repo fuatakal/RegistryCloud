@@ -20,7 +20,7 @@ export default function Home() {
   const [user, setUser] = useAtom(userAtom)
   const [navbarLinks, setNavbarLinks] = useAtom(navLinksAtom)
 
-  const handleNavigateForm = async (id: number) => {
+  const handleClickOnForm = (id: number) => {
     router.push(`/form-details/${id}`)
   }
 
@@ -84,9 +84,10 @@ export default function Home() {
               {forms.map((form) => (
                 <DashboardFormItem
                   key={form.id}
-                  name={form.name}
+                  name={form.name || ''}
+                  description={form.description || ''}
                   onClick={() => {
-                    handleNavigateForm(form.id)
+                    handleClickOnForm(form.id || 0)
                   }}
                 />
               ))}
