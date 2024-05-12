@@ -1,17 +1,49 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Navbar from './Navbar'
 import { staffLinks } from '@/constants'
 import { useAtom } from 'jotai'
 import userAtom from '@/atoms/userInfoAtom'
-import { FaSave, FaShare, FaTrash } from 'react-icons/fa'
+import { FaSave, FaTrash } from 'react-icons/fa'
 import Designer from './Designer'
 import { DndContext, MouseSensor, useSensor, useSensors } from '@dnd-kit/core'
 import DragOverlayWrapper from './DragOverlayWrapper'
+import formElementsAtom from '@/atoms/formElementsAtom'
+import { Form } from '@/types'
+import { useEditForm, useGetFormbyId } from '@/hooks/form'
+import PublishBtn from './PublishBtn'
+import currentFormAtom from '@/atoms/currentFormAtom'
 
-const FormBuilder = () => {
+interface FormBuilderProps {
+  id: string
+}
+
+const FormBuilder = ({ id }: FormBuilderProps) => {
   const [user] = useAtom(userAtom)
+  const [formElements, setFormElements] = useAtom(formElementsAtom)
+
+  const [form, setForm] = useAtom(currentFormAtom)
+  const [loading, setLoading] = useState<boolean>(true)
+
+  const handleSaveForm = async () => {
+    try {
+      await useEditForm(id, { ...form, questions: formElements } as Form)
+    } catch (error) {
+      console.log('Save form error: ' + error)
+    }
+  }
+
+  useEffect(() => {
+    const getForm = async () => {
+      const response = await useGetFormbyId(Number(id))
+      console.log(response)
+      setForm(response.data)
+      setFormElements(response.questions || [])
+      setLoading(false)
+    }
+    getForm()
+  }, [])
 
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
@@ -19,6 +51,8 @@ const FormBuilder = () => {
     },
   })
   const sensors = useSensors(mouseSensor)
+
+  if (loading) return
 
   return (
     <DndContext sensors={sensors}>
@@ -29,14 +63,18 @@ const FormBuilder = () => {
             Form:<span className=" font-bold"> Form 1</span>
           </h2>
           <div className="flex gap-2">
-            <button className="btn btn-outline btn-success">
+            <button
+              className="btn btn-outline btn-success"
+              onClick={() => {
+                handleSaveForm()
+              }}
+            >
               Save <FaSave />
             </button>
-            <button className="btn btn-outline btn-primary">
-              Publish <FaShare />
-            </button>
+            <PublishBtn formId={Number(id)} />
             <button className="btn btn-outline btn-error">
               Delete <FaTrash />
+              {/*TO-DO(ali): Buraya delete hook çağrılcak onClick kullan */}
             </button>
           </div>
         </div>
