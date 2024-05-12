@@ -9,7 +9,7 @@ import userAtom from '../../atoms/userInfoAtom'
 import navLinksAtom from '@/atoms/navLinksAtom'
 import { Form, User } from '@/types'
 import CreateFormBtn from '@/components/CreateFormBtn'
-import { useFormApi } from '@/hooks/form'
+import { useGetForms } from '@/hooks/form'
 import DashboardFormItem from '@/components/DashboardFormItem'
 
 export default function Home() {
@@ -20,7 +20,9 @@ export default function Home() {
   const [user, setUser] = useAtom(userAtom)
   const [navbarLinks, setNavbarLinks] = useAtom(navLinksAtom)
 
-  const { getForms } = useFormApi()
+  const handleNavigateForm = async (id: number) => {
+    router.push(`/form-details/${id}`)
+  }
 
   useEffect(() => {
     const checkToken = async () => {
@@ -46,7 +48,7 @@ export default function Home() {
             localStorage.getItem('user') || 'null'
           ) as User
 
-          const forms = await getForms()
+          const forms = await useGetForms()
           setForms(forms)
 
           setNavbarLinks(links)
@@ -80,7 +82,13 @@ export default function Home() {
             <div className="divider divider-neutral mb-8" />
             <ul>
               {forms.map((form) => (
-                <DashboardFormItem key={form.id} name={form.name} />
+                <DashboardFormItem
+                  key={form.id}
+                  name={form.name}
+                  onClick={() => {
+                    handleNavigateForm(form.id)
+                  }}
+                />
               ))}
             </ul>
           </div>

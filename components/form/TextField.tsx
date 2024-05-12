@@ -17,12 +17,14 @@ const type: ElementsType = 'TextField'
 
 const extraAttributes = {
   label: 'Text field',
+  variableName: 'text-field',
   required: false,
   placeHolder: 'Value here...',
 }
 
 const propertiesSchema = yup.object().shape({
   label: yup.string().min(2).max(50),
+  variableName: yup.string().min(3).max(24),
   required: yup.boolean().default(false),
   placeHolder: yup.string().max(50),
 })
@@ -66,6 +68,7 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
     mode: 'onBlur',
     defaultValues: {
       label: element.extraAttributes.label,
+      variableName: element.extraAttributes.variableName,
       placeHolder: element.extraAttributes.placeHolder,
       required: element.extraAttributes.required,
     },
@@ -81,6 +84,7 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
       ...element,
       extraAttributes: {
         label: values.label,
+        variableName: values.variableName,
         placeHolder: values.placeHolder,
         required: values.required,
       },
@@ -103,6 +107,23 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
           render={({ field }) => (
             <div className="flex flex-col gap-1 my-2">
               <label>Label</label>
+              <input
+                type="text"
+                className="input input-bordered w-full max-w-xs"
+                {...field}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') e.currentTarget.blur()
+                }}
+              />
+            </div>
+          )}
+        />
+        <Controller
+          control={form.control}
+          name="variableName"
+          render={({ field }) => (
+            <div className="flex flex-col gap-1 my-2">
+              <label>Variable name</label>
               <input
                 type="text"
                 className="input input-bordered w-full max-w-xs"
