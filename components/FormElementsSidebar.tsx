@@ -6,6 +6,7 @@ const FormElementsSidebar = () => {
   return (
     <>
       <SidebarBtnElement formElement={FormElements.TextField} />
+      <SidebarBtnElement formElement={FormElements.NumberField} />
     </>
   )
 }

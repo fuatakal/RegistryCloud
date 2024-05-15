@@ -61,7 +61,10 @@ const PublishBtn = ({ formId }: PublishBtnProps) => {
   }, [form, isOpen])
 
   const handleSubmit = async (values: publishSchemaProps) => {
-    await usePublishForm(values.users, formId)
+    const parsedUsers = values.users.map((userId) => {
+      return { attender: userId }
+    })
+    await usePublishForm(parsedUsers, formId)
     handleToggle()
   }
 

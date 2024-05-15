@@ -1,10 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import Navbar from './Navbar'
-import { staffLinks } from '@/constants'
 import { useAtom } from 'jotai'
-import userAtom from '@/atoms/userInfoAtom'
 import { FaSave, FaTrash } from 'react-icons/fa'
 import Designer from './Designer'
 import { DndContext, MouseSensor, useSensor, useSensors } from '@dnd-kit/core'
@@ -20,7 +17,6 @@ interface FormBuilderProps {
 }
 
 const FormBuilder = ({ id }: FormBuilderProps) => {
-  const [user] = useAtom(userAtom)
   const [formElements, setFormElements] = useAtom(formElementsAtom)
 
   const [form, setForm] = useAtom(currentFormAtom)
@@ -57,7 +53,6 @@ const FormBuilder = ({ id }: FormBuilderProps) => {
   return (
     <DndContext sensors={sensors}>
       <main className="flex flex-col w-full">
-        <Navbar links={staffLinks} username={user?.email || ''} />
         <div className="flex justify-between border-b-2 p-4 items-center gap-3">
           <h2>
             Form:<span className=" font-bold"> Form 1</span>

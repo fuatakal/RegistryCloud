@@ -3,11 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
-import { useAtom } from 'jotai'
-import Navbar from '../../components/Navbar'
-import userAtom from '../../atoms/userInfoAtom'
-import navLinksAtom from '@/atoms/navLinksAtom'
-import { Form, User } from '@/types'
+import { Form } from '@/types'
 import CreateFormBtn from '@/components/CreateFormBtn'
 import { useGetForms } from '@/hooks/form'
 import DashboardFormItem from '@/components/DashboardFormItem'
@@ -16,9 +12,6 @@ export default function Home() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [forms, setForms] = useState<Form[]>([])
-
-  const [user, setUser] = useAtom(userAtom)
-  const [navbarLinks, setNavbarLinks] = useAtom(navLinksAtom)
 
   const handleClickOnForm = (id: number) => {
     router.push(`/form-details/${id}`)
@@ -41,18 +34,8 @@ export default function Home() {
               },
             }
           )
-
-          // If token is valid, proceed to the homepage
-          const links = JSON.parse(localStorage.getItem('navBarLinks') || '[]')
-          const userFromStorage = JSON.parse(
-            localStorage.getItem('user') || 'null'
-          ) as User
-
           const forms = await useGetForms()
           setForms(forms)
-
-          setNavbarLinks(links)
-          setUser(userFromStorage)
           setLoading(false)
         }
       } catch (error) {
@@ -68,7 +51,6 @@ export default function Home() {
 
   return (
     <main>
-      <Navbar links={navbarLinks} username={user?.email || ''} />
       {loading ? (
         // Loading screen while checking token
         <div className="min-h-screen flex justify-center items-center">

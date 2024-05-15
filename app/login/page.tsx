@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import { useAtom } from 'jotai'
@@ -64,6 +64,12 @@ export default function Page() {
       console.error('Login error:', error)
     }
   }
+
+  useEffect(() => {
+    localStorage.removeItem('jwtToken')
+    localStorage.removeItem('user')
+    localStorage.removeItem('navBarLinks')
+  }, [])
 
   return (
     <main className="h-screen flex items-center justify-center ">

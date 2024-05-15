@@ -9,15 +9,15 @@ import React, { useEffect, useState } from 'react'
 import * as yup from 'yup'
 import { Controller, useForm } from 'react-hook-form'
 
-import { MdTextFields } from 'react-icons/md'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useFormActions } from '@/hooks/formActions'
+import { Bs123 } from 'react-icons/bs'
 
-const type: ElementsType = 'TextField'
+const type: ElementsType = 'NumberField'
 
 const extraAttributes = {
-  label: 'Text field',
-  variableName: 'text-field',
+  label: 'Number field',
+  variableName: 'number-field',
   required: false,
   placeHolder: 'Value here...',
 }
@@ -51,7 +51,7 @@ const DesignerComponent: React.FC<DesignerComponentProps> = ({
         {required && '*'}
       </label>
       <input
-        type="text"
+        type="number"
         placeholder={placeHolder}
         className="input input-bordered w-full max-w-xs"
       />
@@ -88,10 +88,11 @@ const FormComponent: React.FC<{
             : 'input input-bordered w-full'
         }
         placeholder={placeHolder}
+        type="number"
         onChange={(e) => setValue(e.target.value)}
         onBlur={(e) => {
           if (!submitValue) return
-          const valid = TextFieldFormElement.validate(element, e.target.value)
+          const valid = NumberFieldFormElement.validate(element, e.target.value)
           setError(!valid)
           if (!valid) return
           submitValue(parseInt(element.id), e.target.value)
@@ -185,7 +186,7 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
             <div className="flex flex-col gap-1 my-2">
               <label>Placeholder</label>
               <input
-                type="text"
+                type="number"
                 className="input input-bordered w-full max-w-xs"
                 {...field}
                 onKeyDown={(e) => {
@@ -215,7 +216,7 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
   )
 }
 
-const TextFieldFormElement: FormElement = {
+const NumberFieldFormElement: FormElement = {
   type,
   designerComponent: DesignerComponent,
   formComponent: FormComponent,
@@ -226,8 +227,8 @@ const TextFieldFormElement: FormElement = {
     extraAttributes,
   }),
   designerBtnElement: {
-    icon: MdTextFields,
-    label: 'Text Field',
+    icon: Bs123,
+    label: 'Number Field',
   },
   validate: (
     formElement: FormElementInstance,
@@ -242,4 +243,4 @@ const TextFieldFormElement: FormElement = {
   },
 }
 
-export default TextFieldFormElement
+export default NumberFieldFormElement
