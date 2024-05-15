@@ -3,6 +3,8 @@ import React from 'react'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import NextTopLoader from 'nextjs-toploader'
+import Navbar from '@/components/Navbar'
+import Alert from '@/components/Alert'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,7 +21,9 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="cupcake">
       <body className={inter.className}>
+        <Alert />
         <NextTopLoader />
+        <Navbar />
         {children}
       </body>
     </html>

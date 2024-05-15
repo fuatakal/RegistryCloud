@@ -3,14 +3,13 @@ import Modal from './Modal'
 import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useFormApi } from '@/hooks/form'
+import { useCreateForm } from '@/hooks/form'
 import { useRouter } from 'next/navigation'
 
 const CreateFormBtn = () => {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const handleToggle = () => setIsOpen((prev) => !prev)
-  const { createForm } = useFormApi()
 
   const formCreateSchema = yup.object().shape({
     name: yup.string().min(2).max(50),
@@ -33,7 +32,7 @@ const CreateFormBtn = () => {
   }, [form, isOpen])
 
   const handleSubmit = async (values: formCreateSchemaProps) => {
-    const responseData = await createForm(
+    const responseData = await useCreateForm(
       values.name as string,
       values.description as string
     )
