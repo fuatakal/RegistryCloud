@@ -91,6 +91,26 @@ export const useGetForms = async () => {
   }
 }
 
+//export const useDeleteForm = async (id: number) => {
+//TO-DO(ali) form builder sayfasında delete için hook yazılıp eklenecek
+//}
+
 export const useDeleteForm = async (id: number) => {
-  //TO-DO(ali) form builder sayfasında delete için hook yazılıp eklenecek
+  try {
+    const accessToken = localStorage.getItem('jwtToken')
+    const response = await fetch(
+      `http://localhost:8000/forms/form-delete/${id}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    )
+    const data = await response.json()
+    return data
+  } catch (error) {
+    console.error('deleteForm error:', error)
+  }
 }
