@@ -8,19 +8,30 @@ import { DndContext, MouseSensor, useSensor, useSensors } from '@dnd-kit/core'
 import DragOverlayWrapper from './DragOverlayWrapper'
 import formElementsAtom from '@/atoms/formElementsAtom'
 import { Form } from '@/types'
-import { useEditForm, useGetFormbyId } from '@/hooks/form'
+import { useEditForm, useGetFormbyId, useDeleteForm } from '@/hooks/form'
 import PublishBtn from './PublishBtn'
 import currentFormAtom from '@/atoms/currentFormAtom'
+import { useRouter } from 'next/navigation'
 
 interface FormBuilderProps {
   id: string
 }
 
 const FormBuilder = ({ id }: FormBuilderProps) => {
+  const router = useRouter()
   const [formElements, setFormElements] = useAtom(formElementsAtom)
 
   const [form, setForm] = useAtom(currentFormAtom)
   const [loading, setLoading] = useState<boolean>(true)
+
+  const handleDeleteForm = async () => {
+    try {
+      await useDeleteForm(Number(id))
+      router.push('/dashboard')
+    } catch (error) {
+      console.log('Delete form error: ' + error)
+    }
+  }
 
   const handleSaveForm = async () => {
     try {
@@ -67,9 +78,11 @@ const FormBuilder = ({ id }: FormBuilderProps) => {
               Save <FaSave />
             </button>
             <PublishBtn formId={Number(id)} />
-            <button className="btn btn-outline btn-error">
+            <button
+              className="btn btn-outline btn-error"
+              onClick={handleDeleteForm}
+            >
               Delete <FaTrash />
-              {/*TO-DO(ali): Buraya delete hook çağrılcak onClick kullan */}
             </button>
           </div>
         </div>
