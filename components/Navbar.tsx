@@ -1,21 +1,40 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { NavLink } from '@/types'
+import { User } from '@/types'
 import { Paths } from '@/routes'
+import navLinksAtom from '@/atoms/navLinksAtom'
+import userAtom from '@/atoms/userInfoAtom'
+import { useAtom } from 'jotai'
+import { usePathname } from 'next/navigation'
 
-interface NavbarProps {
-  username: string
-  links: NavLink[]
-}
-
-function Navbar({ links, username }: NavbarProps) {
+function Navbar() {
   const router = useRouter()
+  const pathname = usePathname()
+
+  if (pathname.includes('/login') || pathname.includes('/register')) return null
+
+  const [user, setUser] = useAtom(userAtom)
+  const [navbarLinks, setNavbarLinks] = useAtom(navLinksAtom)
+
+  useEffect(() => {
+    const links = JSON.parse(localStorage.getItem('navBarLinks') || '[]')
+    const userFromStorage = JSON.parse(
+      localStorage.getItem('user') || 'null'
+    ) as User
+
+    setNavbarLinks(links)
+    setUser(userFromStorage)
+  }, [])
 
   // Function to handle logout
   const handleLogout = () => {
-    localStorage.removeItem('jwtToken') // Remove JWT token from local storage
+    localStorage.removeItem('jwtToken')
+    localStorage.removeItem('user')
+    localStorage.removeItem('navBarLinks') // Remove JWT token from local storage
     router.push('/login') // Navigate to login page
   }
 
@@ -35,7 +54,7 @@ function Navbar({ links, username }: NavbarProps) {
       </div>
       <div className="flex-none gap-2">
         <ul className="menu menu-horizontal px-1">
-          {links.map((link) => (
+          {navbarLinks.map((link) => (
             <li key={link.key}>
               <Link href={link.href}>{link.name}</Link>
             </li>
@@ -59,7 +78,7 @@ function Navbar({ links, username }: NavbarProps) {
             className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52"
           >
             <li>
-              <h5>{username}</h5>
+              <h5>{user?.email}</h5>
             </li>
             <br />
 

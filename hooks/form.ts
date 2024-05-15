@@ -1,4 +1,4 @@
-import { Form } from '@/types'
+import { Form, SubmitFormProps } from '@/types'
 
 export const useGetFormbyId = async (id: number) => {
   const response = await fetch(`http://localhost:8000/forms/${id}`, {
@@ -53,7 +53,10 @@ export const useEditForm = async (id: string, form: Form) => {
   }
 }
 
-export const usePublishForm = async (users: number[], formId: number) => {
+export const usePublishForm = async (
+  users: { attender: number }[],
+  formId: number
+) => {
   try {
     const accessToken = localStorage.getItem('jwtToken')
     console.log(users)
@@ -91,9 +94,27 @@ export const useGetForms = async () => {
   }
 }
 
-//export const useDeleteForm = async (id: number) => {
-//TO-DO(ali) form builder sayfasında delete için hook yazılıp eklenecek
-//}
+export const useSubmitForm = async (
+  answers: SubmitFormProps[],
+  formId: string
+) => {
+  try {
+    const accessToken = localStorage.getItem('jwtToken')
+    console.log(answers)
+    await fetch(`http://localhost:8000/forms/fill/${formId}`, {
+      method: 'POST',
+      headers: {
+        // Add your headers here
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ answers: answers }),
+    })
+  } catch (error) {
+    // Handle any network error or invalid response
+    console.error('submitform error:', error)
+  }
+}
 
 export const useDeleteForm = async (id: number) => {
   try {

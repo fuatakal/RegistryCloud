@@ -23,3 +23,8 @@ export interface Form {
   questions?: FormElementInstance[]
   attenders?: number[]
 }
+
+export interface SubmitFormProps {
+  question: number
+  answer: string
+}

@@ -1,12 +1,9 @@
 'use client'
 
-import navLinksAtom from '@/atoms/navLinksAtom'
-import userAtom from '@/atoms/userInfoAtom'
-import Navbar from '@/components/Navbar'
 import StatsCard from '@/components/StatsCard'
 import { useGetFormbyId } from '@/hooks/form'
-import { Form, User } from '@/types'
-import { useAtom } from 'jotai'
+import { Form } from '@/types'
+
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { FaArrowAltCircleRight, FaEdit } from 'react-icons/fa'
@@ -24,9 +21,6 @@ function DetailsPage({ params }: DetailsProps) {
   const [form, setForm] = useState<Form>()
   const [loading, setLoading] = useState<boolean>(true)
 
-  const [user, setUser] = useAtom(userAtom)
-  const [navbarLinks, setNavbarLinks] = useAtom(navLinksAtom)
-
   const visit = (id: number) => {
     router.push(`/submit/${id.toString()}`)
   }
@@ -34,14 +28,7 @@ function DetailsPage({ params }: DetailsProps) {
   useEffect(() => {
     const getForm = async () => {
       const response = await useGetFormbyId(Number(id))
-      const links = JSON.parse(localStorage.getItem('navBarLinks') || '[]')
-      const userFromStorage = JSON.parse(
-        localStorage.getItem('user') || 'null'
-      ) as User
-
-      setNavbarLinks(links)
       setForm(response)
-      setUser(userFromStorage)
       setLoading(false)
     }
     getForm()
@@ -52,7 +39,6 @@ function DetailsPage({ params }: DetailsProps) {
   if (form) {
     return (
       <>
-        <Navbar links={navbarLinks} username={user?.email || ''} />
         <div className="py-10 px-5 border-b border-muted">
           <div className="flex justify-between container">
             <div className="flex gap-6 items-center">

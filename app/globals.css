@@ -5,3 +5,20 @@
 .drop-zone {
   @apply bg-base-100 max-w-[920px] h-full m-auto rounded-xl flex flex-col flex-grow items-center justify-start flex-1 overflow-y-auto;
 }
+
+.alert-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  animation: slideIn 0.8s ease forwards;
+  width: 20rem;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
