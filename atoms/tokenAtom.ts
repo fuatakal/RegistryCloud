@@ -1,5 +1,5 @@
-import { atom } from 'jotai'
+import { atomWithStorage } from 'jotai/utils'
 
-const tokenAtom = atom(null)
+const tokenAtom = atomWithStorage<string | null>('jwtToken', null)
 
 export default tokenAtom

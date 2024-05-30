@@ -1,6 +1,6 @@
+import { atomWithStorage } from 'jotai/utils'
 import { User } from '@/types'
-import { atom } from 'jotai'
 
-const userAtom = atom<User | null>(null)
+const userAtom = atomWithStorage<User | null>('user', null)
 
 export default userAtom
