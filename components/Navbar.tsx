@@ -2,14 +2,15 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useRouter } from 'next/navigation'
-import { User } from '@/types'
+
 import { Paths } from '@/routes'
 import navLinksAtom from '@/atoms/navLinksAtom'
 import userAtom from '@/atoms/userInfoAtom'
 import { useAtom } from 'jotai'
 import { usePathname } from 'next/navigation'
+import tokenAtom from '@/atoms/tokenAtom'
 
 function Navbar() {
   const router = useRouter()
@@ -19,22 +20,13 @@ function Navbar() {
 
   const [user, setUser] = useAtom(userAtom)
   const [navbarLinks, setNavbarLinks] = useAtom(navLinksAtom)
-
-  useEffect(() => {
-    const links = JSON.parse(localStorage.getItem('navBarLinks') || '[]')
-    const userFromStorage = JSON.parse(
-      localStorage.getItem('user') || 'null'
-    ) as User
-
-    setNavbarLinks(links)
-    setUser(userFromStorage)
-  }, [])
+  const [, setToken] = useAtom(tokenAtom)
 
   // Function to handle logout
   const handleLogout = () => {
-    localStorage.removeItem('jwtToken')
-    localStorage.removeItem('user')
-    localStorage.removeItem('navBarLinks') // Remove JWT token from local storage
+    setUser(null)
+    setNavbarLinks(null)
+    setToken(null)
     router.push('/login') // Navigate to login page
   }
 
@@ -54,7 +46,7 @@ function Navbar() {
       </div>
       <div className="flex-none gap-2">
         <ul className="menu menu-horizontal px-1">
-          {navbarLinks.map((link) => (
+          {navbarLinks?.map((link) => (
             <li key={link.key}>
               <Link href={link.href}>{link.name}</Link>
             </li>
@@ -83,7 +75,14 @@ function Navbar() {
             <br />
 
             <li>
-              <a className="justify-between">Profile</a>
+              <a
+                className="justify-between"
+                onClick={() => {
+                  router.push(`/profile/${user?.id}`)
+                }}
+              >
+                Profile
+              </a>
             </li>
             <li>
               <a>Settings</a>

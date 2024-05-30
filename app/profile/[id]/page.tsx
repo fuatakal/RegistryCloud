@@ -1,7 +1,8 @@
 'use client'
 
-import { User } from '@/types'
-import React, { useEffect, useState } from 'react'
+import userAtom from '@/atoms/userInfoAtom'
+import { useAtom } from 'jotai'
+import React from 'react'
 
 interface ProfilePageProps {
   params: { id: string }
@@ -9,13 +10,7 @@ interface ProfilePageProps {
 
 export default function ProfilePage({ params }: ProfilePageProps) {
   const { id } = params
-  const [user, setUser] = useState<User>()
-  useEffect(() => {
-    const userFromStorage = JSON.parse(
-      localStorage.getItem('user') || 'null'
-    ) as User
-    setUser(userFromStorage)
-  }, [])
+  const [user] = useAtom(userAtom)
 
   return (
     <div className="flex flex-col items-center ">

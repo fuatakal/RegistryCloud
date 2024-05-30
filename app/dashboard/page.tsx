@@ -3,50 +3,63 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
-import { Form } from '@/types'
-import CreateFormBtn from '@/components/CreateFormBtn'
-import { useGetForms } from '@/hooks/form'
+import { AttendedForm, Project } from '@/types'
+import { useGetAttendedForms } from '@/hooks/form'
 import DashboardFormItem from '@/components/DashboardFormItem'
+import { useAtom } from 'jotai'
+import tokenAtom from '@/atoms/tokenAtom'
+import userAtom from '@/atoms/userInfoAtom'
+import { useGetProjects } from '@/hooks/project'
+import ProjectItem from '@/components/ProjectItem'
+import CreateProjectBtn from '@/components/CreateProjectBtn'
 
 export default function Home() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
-  const [forms, setForms] = useState<Form[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
+  const [attendedforms, setAttendedForms] = useState<AttendedForm[]>([])
+  const [token] = useAtom(tokenAtom)
+  const [user] = useAtom(userAtom)
 
   const handleClickOnForm = (id: number) => {
     router.push(`/form-details/${id}`)
   }
 
+  const handleClickOnProject = (id: number) => {
+    router.push(`/project-details/${id}`)
+  }
+
   useEffect(() => {
     const checkToken = async () => {
+      if (!token) {
+        setLoading(true)
+        return
+      }
       try {
-        // Simulate checking the JWT token
-        // TODO: replace with sessionToken when neccesary
-        const token = localStorage.getItem('jwtToken')
-        if (token) {
-          // If token exists, you can perform a validation request to the server
-          await axios.post(
-            'http://localhost:8000/auth/jwt/verify/',
-            { token },
-            {
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            }
-          )
-          const forms = await useGetForms()
-          setForms(forms)
-          setLoading(false)
-        }
+        await axios.post(
+          'http://localhost:8000/auth/jwt/verify/',
+          { token },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        )
       } catch (error) {
-        // If an error occurs during token validation, redirect to login page
-        // console.error('Token validation error:', error)
-        setLoading(false)
         router.push('/login')
+      }
+
+      if (user?.is_staff) {
+        const data = await useGetProjects()
+        setProjects(data)
+      } else {
+        const data = await useGetAttendedForms()
+        setAttendedForms(data)
       }
     }
 
     checkToken()
+    setLoading(false)
   }, [])
 
   return (
@@ -60,19 +73,40 @@ export default function Home() {
         // Content after token check
         <div className="min-h-screen flex p-12 justify-center">
           <div className="container flex flex-col gap-4 p-12 rounded-xl bg-base-200 w-[75rem]">
-            <CreateFormBtn />
+            <div className="flex flex-row items-center w-full">
+              <h1 className=" text-xl font-bold my-2 ml-4">
+                {user?.is_staff ? 'My Projects' : 'Form invitations'}
+              </h1>
+              <div className="ml-auto">
+                {user?.is_staff && <CreateProjectBtn />}
+              </div>
+            </div>
+
             <div className="divider divider-neutral mb-8" />
+
             <ul>
-              {forms.map((form) => (
-                <DashboardFormItem
-                  key={form.id}
-                  name={form.name || ''}
-                  description={form.description || ''}
-                  onClick={() => {
-                    handleClickOnForm(form.id || 0)
-                  }}
-                />
-              ))}
+              {user?.is_staff
+                ? projects.map((project) => (
+                    <ProjectItem
+                      key={project.id}
+                      name={project.atributes.name || ''}
+                      description={project.atributes.desc || ''}
+                      onClick={() => {
+                        handleClickOnProject(project.id || 0)
+                      }}
+                    />
+                  ))
+                : attendedforms.map((form) => (
+                    <DashboardFormItem
+                      key={form.form}
+                      name={form.formName || ''}
+                      description={form.formDescription || ''}
+                      isSubmitted={form.isSubmitted}
+                      onClick={() => {
+                        handleClickOnForm(form.form || 0)
+                      }}
+                    />
+                  ))}
             </ul>
           </div>
         </div>
