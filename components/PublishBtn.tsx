@@ -22,7 +22,7 @@ const PublishBtn = ({ formId }: PublishBtnProps) => {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState<boolean>(true)
 
-  const [currentUser, setCurrentUser] = useAtom(userAtom)
+  const [currentUser] = useAtom(userAtom)
   const [currentForm] = useAtom(currentFormAtom)
 
   const handleToggle = () => setIsOpen((prev) => !prev)
@@ -37,23 +37,16 @@ const PublishBtn = ({ formId }: PublishBtnProps) => {
     resolver: yupResolver(publishSchema),
     mode: 'onSubmit',
     defaultValues: {
-      users: currentForm?.attenders,
+      users: currentForm?.attenders?.map((attender) => attender.attender),
     },
   })
 
   useEffect(() => {
     const getAllUsers = async () => {
       setUsers(await useGetAllUser())
-    }
-    const getCurrentUser = async () => {
-      const userFromStorage = JSON.parse(
-        localStorage.getItem('user') || 'null'
-      ) as User
-      setCurrentUser(userFromStorage)
       setLoading(false)
     }
     getAllUsers()
-    getCurrentUser()
   }, [])
 
   useEffect(() => {

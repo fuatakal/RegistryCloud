@@ -11,22 +11,22 @@ import { Controller, useForm } from 'react-hook-form'
 
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useFormActions } from '@/hooks/formActions'
-import { Bs123 } from 'react-icons/bs'
+import { BsFillCalendarDateFill } from 'react-icons/bs'
+import { BiCalendar } from 'react-icons/bi'
+import Modal from '../Modal'
 
-const type: ElementsType = 'NumberField'
+const type: ElementsType = 'DateField'
 
 const extraAttributes = {
-  label: 'Number field',
-  variableName: 'number-field',
+  label: 'Date field',
+  variableName: 'date-field',
   required: false,
-  placeHolder: 'Value here...',
 }
 
 const propertiesSchema = yup.object().shape({
   label: yup.string().min(2).max(50),
   variableName: yup.string().min(3).max(24),
   required: yup.boolean().default(false),
-  placeHolder: yup.string().max(50),
 })
 
 type propestiesSchemaProps = yup.InferType<typeof propertiesSchema>
@@ -43,18 +43,16 @@ const DesignerComponent: React.FC<DesignerComponentProps> = ({
   elementInstance,
 }) => {
   const element = elementInstance as CustomInstance
-  const { label, required, placeHolder } = element.extraAttributes
+  const { label, required } = element.extraAttributes
   return (
     <div className="flex flex-col gap-2 w-full">
       <label className=" font-semibold">
         {label}
         {required && '*'}
       </label>
-      <input
-        type="text"
-        placeholder={placeHolder}
-        className="input input-bordered w-full max-w-xs"
-      />
+      <button className="btn btn-accent btn-outline w-[10rem] self-start">
+        Pick a date <BiCalendar />
+      </button>
     </div>
   )
 }
@@ -67,37 +65,65 @@ const FormComponent: React.FC<{
 }> = ({ elementInstance, submitValue, isInvalid, defaultValue }) => {
   const element = elementInstance as CustomInstance
 
-  const [value, setValue] = useState(defaultValue || '')
+  const [date, setDate] = useState<Date | undefined>(
+    defaultValue ? new Date(defaultValue) : undefined
+  )
   const [error, setError] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     setError(isInvalid === true)
   }, [isInvalid])
 
-  const { label, required, placeHolder } = element.extraAttributes
+  const { label, required } = element.extraAttributes
   return (
     <div className="flex flex-col gap-2 w-full">
       <label className={error ? 'text-red-500' : ''}>
         {label}
         {required && '*'}
       </label>
-      <input
+      <button
         className={
           error
-            ? 'input input-bordered w-full border-red-500'
-            : 'input input-bordered w-full'
+            ? 'btn btn-accent btn-outline w-[10rem] self-start border-red-500'
+            : 'btn btn-accent btn-outline w-[10rem] self-start'
         }
-        placeholder={placeHolder}
-        type="text"
-        onChange={(e) => setValue(e.target.value)}
-        onBlur={(e) => {
-          if (!submitValue) return
-          const valid = NumberFieldFormElement.validate(element, e.target.value)
-          setError(!valid)
-          if (!valid) return
-          submitValue(parseInt(element.id), e.target.value)
-        }}
-        value={value}
+        onClick={() => setIsOpen(true)}
+      >
+        Pick a date <BiCalendar />
+      </button>
+      <Modal isOpen={isOpen}>
+        <input
+          type="date"
+          className="input input-bordered mb-2"
+          value={date ? date.toISOString().split('T')[0] : ''}
+          onChange={(event) => {
+            const selectedDate = new Date(event.target.value)
+            setDate(selectedDate)
+
+            if (!submitValue) return
+            const value = selectedDate.toISOString()
+            const valid = DateFieldFormElement.validate(element, value)
+            setError(!valid)
+            submitValue(Number(element.id), value)
+          }}
+        />
+        <div className="flex gap-4">
+          <button className="btn btn-primary" onClick={() => setIsOpen(false)}>
+            Save
+          </button>
+          <button
+            className="btn btn-secondary"
+            onClick={() => setIsOpen(false)}
+          >
+            Close
+          </button>
+        </div>
+      </Modal>
+      <input
+        type="date"
+        className="input input-bordered border-accent disabled"
+        value={date ? date.toISOString().split('T')[0] : ''}
       />
     </div>
   )
@@ -113,7 +139,6 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
     defaultValues: {
       label: element.extraAttributes.label,
       variableName: element.extraAttributes.variableName,
-      placeHolder: element.extraAttributes.placeHolder,
       required: element.extraAttributes.required,
     },
   })
@@ -129,7 +154,6 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
       extraAttributes: {
         label: values.label,
         variableName: values.variableName,
-        placeHolder: values.placeHolder,
         required: values.required,
       },
     })
@@ -181,23 +205,6 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
         />
         <Controller
           control={form.control}
-          name="placeHolder"
-          render={({ field }) => (
-            <div className="flex flex-col gap-1 my-2">
-              <label>Placeholder</label>
-              <input
-                type="number"
-                className="input input-bordered w-full max-w-xs"
-                {...field}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') e.currentTarget.blur()
-                }}
-              />
-            </div>
-          )}
-        />
-        <Controller
-          control={form.control}
           name="required"
           render={({ field: { onChange, value } }) => (
             <div className="flex flex-col gap-1 my-2">
@@ -216,7 +223,7 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
   )
 }
 
-const NumberFieldFormElement: FormElement = {
+const DateFieldFormElement: FormElement = {
   type,
   designerComponent: DesignerComponent,
   formComponent: FormComponent,
@@ -227,8 +234,8 @@ const NumberFieldFormElement: FormElement = {
     extraAttributes,
   }),
   designerBtnElement: {
-    icon: Bs123,
-    label: 'Number Field',
+    icon: BsFillCalendarDateFill,
+    label: 'Date Field',
   },
   validate: (
     formElement: FormElementInstance,
@@ -243,4 +250,4 @@ const NumberFieldFormElement: FormElement = {
   },
 }
 
-export default NumberFieldFormElement
+export default DateFieldFormElement

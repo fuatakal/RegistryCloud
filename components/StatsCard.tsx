@@ -22,9 +22,8 @@ const StatsCard = ({
   return (
     <div className="stat">
       <div className="stat-figure text-secondary">{icon}</div>
-      <div className="stat-title">Downloads </div>
-      <div className="stat-value">31K</div>
-      <div className="stat-desc">Jan 1st - Feb 1st</div>
+      <div className="stat-title">{title} </div>
+      <div className="stat-value">{value}</div>
     </div>
   )
 }

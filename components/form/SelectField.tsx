@@ -11,15 +11,17 @@ import { Controller, useForm } from 'react-hook-form'
 
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useFormActions } from '@/hooks/formActions'
-import { Bs123 } from 'react-icons/bs'
+import { RxDropdownMenu } from 'react-icons/rx'
+import { AiOutlineClose, AiOutlinePlus } from 'react-icons/ai'
 
-const type: ElementsType = 'NumberField'
+const type: ElementsType = 'SelectField'
 
 const extraAttributes = {
-  label: 'Number field',
-  variableName: 'number-field',
+  label: 'Select field',
+  variableName: 'select-field',
   required: false,
   placeHolder: 'Value here...',
+  options: [],
 }
 
 const propertiesSchema = yup.object().shape({
@@ -27,6 +29,7 @@ const propertiesSchema = yup.object().shape({
   variableName: yup.string().min(3).max(24),
   required: yup.boolean().default(false),
   placeHolder: yup.string().max(50),
+  options: yup.array(yup.string()).default([]),
 })
 
 type propestiesSchemaProps = yup.InferType<typeof propertiesSchema>
@@ -50,11 +53,11 @@ const DesignerComponent: React.FC<DesignerComponentProps> = ({
         {label}
         {required && '*'}
       </label>
-      <input
-        type="text"
-        placeholder={placeHolder}
-        className="input input-bordered w-full max-w-xs"
-      />
+      <select className="select select-accent w-full max-w-xs">
+        <option disabled selected>
+          {placeHolder}
+        </option>
+      </select>
     </div>
   )
 }
@@ -74,31 +77,38 @@ const FormComponent: React.FC<{
     setError(isInvalid === true)
   }, [isInvalid])
 
-  const { label, required, placeHolder } = element.extraAttributes
+  const { label, required, placeHolder, options } = element.extraAttributes
   return (
     <div className="flex flex-col gap-2 w-full">
       <label className={error ? 'text-red-500' : ''}>
         {label}
         {required && '*'}
       </label>
-      <input
+      <select
         className={
           error
-            ? 'input input-bordered w-full border-red-500'
-            : 'input input-bordered w-full'
+            ? 'select select-accent w-full max-w-xs border-red-500'
+            : 'select select-accent w-full max-w-xs'
         }
-        placeholder={placeHolder}
-        type="text"
-        onChange={(e) => setValue(e.target.value)}
-        onBlur={(e) => {
+        value={value} // Set value here
+        onChange={(e) => {
+          const selectedValue = e.target.value
+          setValue(selectedValue)
           if (!submitValue) return
-          const valid = NumberFieldFormElement.validate(element, e.target.value)
+          const valid = SelectFieldFormElement.validate(element, selectedValue)
           setError(!valid)
-          if (!valid) return
-          submitValue(parseInt(element.id), e.target.value)
+          submitValue(Number(element.id), selectedValue)
         }}
-        value={value}
-      />
+      >
+        <option disabled value="">
+          {placeHolder}
+        </option>
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
     </div>
   )
 }
@@ -115,6 +125,7 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
       variableName: element.extraAttributes.variableName,
       placeHolder: element.extraAttributes.placeHolder,
       required: element.extraAttributes.required,
+      options: element.extraAttributes.options,
     },
   })
 
@@ -131,6 +142,7 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
         variableName: values.variableName,
         placeHolder: values.placeHolder,
         required: values.required,
+        options: values.options,
       },
     })
   }
@@ -186,7 +198,7 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
             <div className="flex flex-col gap-1 my-2">
               <label>Placeholder</label>
               <input
-                type="number"
+                type="text"
                 className="input input-bordered w-full max-w-xs"
                 {...field}
                 onKeyDown={(e) => {
@@ -194,6 +206,57 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
                 }}
               />
             </div>
+          )}
+        />
+        <Controller
+          control={form.control}
+          name="options"
+          render={({ field }) => (
+            <>
+              <div className="flex justify-between items-center">
+                <label>Options</label>
+                <button
+                  className="btn btn-outline btn-accent gap-2"
+                  onClick={(e) => {
+                    e.preventDefault() // avoid submit
+                    form.setValue('options', field.value.concat('New option'))
+                  }}
+                >
+                  <AiOutlinePlus />
+                  Add
+                </button>
+              </div>
+              <div className="flex flex-col gap-2 mt-2">
+                {form.watch('options').map((option, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between gap-1"
+                  >
+                    <input
+                      placeholder=""
+                      type="text"
+                      className="input input-bordered w-[8rem]"
+                      value={option}
+                      onChange={(e) => {
+                        field.value[index] = e.target.value
+                        field.onChange(field.value)
+                      }}
+                    />
+                    <button
+                      className="btn btn-ghost"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        const newOptions = [...field.value]
+                        newOptions.splice(index, 1)
+                        field.onChange(newOptions)
+                      }}
+                    >
+                      <AiOutlineClose />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         />
         <Controller
@@ -216,7 +279,7 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
   )
 }
 
-const NumberFieldFormElement: FormElement = {
+const SelectFieldFormElement: FormElement = {
   type,
   designerComponent: DesignerComponent,
   formComponent: FormComponent,
@@ -227,8 +290,8 @@ const NumberFieldFormElement: FormElement = {
     extraAttributes,
   }),
   designerBtnElement: {
-    icon: Bs123,
-    label: 'Number Field',
+    icon: RxDropdownMenu,
+    label: 'Select Field',
   },
   validate: (
     formElement: FormElementInstance,
@@ -243,4 +306,4 @@ const NumberFieldFormElement: FormElement = {
   },
 }
 
-export default NumberFieldFormElement
+export default SelectFieldFormElement

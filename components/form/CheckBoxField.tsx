@@ -11,13 +11,13 @@ import { Controller, useForm } from 'react-hook-form'
 
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useFormActions } from '@/hooks/formActions'
-import { Bs123 } from 'react-icons/bs'
+import { IoMdCheckbox } from 'react-icons/io'
 
-const type: ElementsType = 'NumberField'
+const type: ElementsType = 'CheckBoxField'
 
 const extraAttributes = {
-  label: 'Number field',
-  variableName: 'number-field',
+  label: 'CheckBox field',
+  variableName: 'CheckBox-field',
   required: false,
   placeHolder: 'Value here...',
 }
@@ -26,7 +26,6 @@ const propertiesSchema = yup.object().shape({
   label: yup.string().min(2).max(50),
   variableName: yup.string().min(3).max(24),
   required: yup.boolean().default(false),
-  placeHolder: yup.string().max(50),
 })
 
 type propestiesSchemaProps = yup.InferType<typeof propertiesSchema>
@@ -43,18 +42,15 @@ const DesignerComponent: React.FC<DesignerComponentProps> = ({
   elementInstance,
 }) => {
   const element = elementInstance as CustomInstance
-  const { label, required, placeHolder } = element.extraAttributes
+  const { label, required } = element.extraAttributes
+  const id = `checkbox-${element.id}`
   return (
     <div className="flex flex-col gap-2 w-full">
-      <label className=" font-semibold">
+      <label className=" font-semibold" htmlFor={id}>
         {label}
         {required && '*'}
       </label>
-      <input
-        type="text"
-        placeholder={placeHolder}
-        className="input input-bordered w-full max-w-xs"
-      />
+      <input type="checkbox" id={id} className="checkbox" />
     </div>
   )
 }
@@ -67,14 +63,16 @@ const FormComponent: React.FC<{
 }> = ({ elementInstance, submitValue, isInvalid, defaultValue }) => {
   const element = elementInstance as CustomInstance
 
-  const [value, setValue] = useState(defaultValue || '')
+  const [value, setValue] = useState<boolean>(
+    defaultValue === 'true' ? true : false
+  )
   const [error, setError] = useState(false)
 
   useEffect(() => {
     setError(isInvalid === true)
   }, [isInvalid])
 
-  const { label, required, placeHolder } = element.extraAttributes
+  const { label, required } = element.extraAttributes
   return (
     <div className="flex flex-col gap-2 w-full">
       <label className={error ? 'text-red-500' : ''}>
@@ -82,22 +80,19 @@ const FormComponent: React.FC<{
         {required && '*'}
       </label>
       <input
-        className={
-          error
-            ? 'input input-bordered w-full border-red-500'
-            : 'input input-bordered w-full'
-        }
-        placeholder={placeHolder}
-        type="text"
-        onChange={(e) => setValue(e.target.value)}
+        type="checkbox"
+        className={error ? 'checkbox border-red-500' : 'checkbox'}
+        onChange={() => setValue(!value)}
         onBlur={(e) => {
           if (!submitValue) return
-          const valid = NumberFieldFormElement.validate(element, e.target.value)
+          const valid = CheckBoxFieldFormElement.validate(
+            element,
+            e.target.value
+          )
           setError(!valid)
           if (!valid) return
           submitValue(parseInt(element.id), e.target.value)
         }}
-        value={value}
       />
     </div>
   )
@@ -113,7 +108,6 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
     defaultValues: {
       label: element.extraAttributes.label,
       variableName: element.extraAttributes.variableName,
-      placeHolder: element.extraAttributes.placeHolder,
       required: element.extraAttributes.required,
     },
   })
@@ -129,7 +123,6 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
       extraAttributes: {
         label: values.label,
         variableName: values.variableName,
-        placeHolder: values.placeHolder,
         required: values.required,
       },
     })
@@ -181,23 +174,6 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
         />
         <Controller
           control={form.control}
-          name="placeHolder"
-          render={({ field }) => (
-            <div className="flex flex-col gap-1 my-2">
-              <label>Placeholder</label>
-              <input
-                type="number"
-                className="input input-bordered w-full max-w-xs"
-                {...field}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') e.currentTarget.blur()
-                }}
-              />
-            </div>
-          )}
-        />
-        <Controller
-          control={form.control}
           name="required"
           render={({ field: { onChange, value } }) => (
             <div className="flex flex-col gap-1 my-2">
@@ -216,7 +192,7 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
   )
 }
 
-const NumberFieldFormElement: FormElement = {
+const CheckBoxFieldFormElement: FormElement = {
   type,
   designerComponent: DesignerComponent,
   formComponent: FormComponent,
@@ -227,8 +203,8 @@ const NumberFieldFormElement: FormElement = {
     extraAttributes,
   }),
   designerBtnElement: {
-    icon: Bs123,
-    label: 'Number Field',
+    icon: IoMdCheckbox,
+    label: 'CheckBox Field',
   },
   validate: (
     formElement: FormElementInstance,
@@ -236,11 +212,11 @@ const NumberFieldFormElement: FormElement = {
   ): boolean => {
     const element = formElement as CustomInstance
     if (element.extraAttributes.required) {
-      return currentValue.length > 0
+      return currentValue !== 'true'
     }
 
     return true
   },
 }
 
-export default NumberFieldFormElement
+export default CheckBoxFieldFormElement

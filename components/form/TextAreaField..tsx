@@ -11,15 +11,16 @@ import { Controller, useForm } from 'react-hook-form'
 
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useFormActions } from '@/hooks/formActions'
-import { Bs123 } from 'react-icons/bs'
+import { BsTextareaResize } from 'react-icons/bs'
 
-const type: ElementsType = 'NumberField'
+const type: ElementsType = 'TextAreaField'
 
 const extraAttributes = {
-  label: 'Number field',
-  variableName: 'number-field',
+  label: 'Textarea field',
+  variableName: 'text-area-field',
   required: false,
   placeHolder: 'Value here...',
+  rows: 2,
 }
 
 const propertiesSchema = yup.object().shape({
@@ -27,6 +28,7 @@ const propertiesSchema = yup.object().shape({
   variableName: yup.string().min(3).max(24),
   required: yup.boolean().default(false),
   placeHolder: yup.string().max(50),
+  rows: yup.number().min(1).max(10),
 })
 
 type propestiesSchemaProps = yup.InferType<typeof propertiesSchema>
@@ -50,10 +52,9 @@ const DesignerComponent: React.FC<DesignerComponentProps> = ({
         {label}
         {required && '*'}
       </label>
-      <input
-        type="text"
+      <textarea
         placeholder={placeHolder}
-        className="input input-bordered w-full max-w-xs"
+        className="textarea textarea-bordered textarea-md w-full"
       />
     </div>
   )
@@ -74,25 +75,28 @@ const FormComponent: React.FC<{
     setError(isInvalid === true)
   }, [isInvalid])
 
-  const { label, required, placeHolder } = element.extraAttributes
+  const { label, required, placeHolder, rows } = element.extraAttributes
   return (
     <div className="flex flex-col gap-2 w-full">
       <label className={error ? 'text-red-500' : ''}>
         {label}
         {required && '*'}
       </label>
-      <input
+      <textarea
         className={
           error
-            ? 'input input-bordered w-full border-red-500'
-            : 'input input-bordered w-full'
+            ? 'textarea textarea-bordered textarea-md w-full border-red-500'
+            : 'textarea textarea-bordered textarea-md w-full'
         }
         placeholder={placeHolder}
-        type="text"
+        rows={rows}
         onChange={(e) => setValue(e.target.value)}
         onBlur={(e) => {
           if (!submitValue) return
-          const valid = NumberFieldFormElement.validate(element, e.target.value)
+          const valid = TextAreaFieldFormElement.validate(
+            element,
+            e.target.value
+          )
           setError(!valid)
           if (!valid) return
           submitValue(parseInt(element.id), e.target.value)
@@ -115,6 +119,7 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
       variableName: element.extraAttributes.variableName,
       placeHolder: element.extraAttributes.placeHolder,
       required: element.extraAttributes.required,
+      rows: element.extraAttributes.rows,
     },
   })
 
@@ -131,6 +136,7 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
         variableName: values.variableName,
         placeHolder: values.placeHolder,
         required: values.required,
+        rows: values.rows,
       },
     })
   }
@@ -186,6 +192,23 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
             <div className="flex flex-col gap-1 my-2">
               <label>Placeholder</label>
               <input
+                type="text"
+                className="input input-bordered w-full max-w-xs"
+                {...field}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') e.currentTarget.blur()
+                }}
+              />
+            </div>
+          )}
+        />
+        <Controller
+          control={form.control}
+          name="rows"
+          render={({ field }) => (
+            <div className="flex flex-col gap-1 my-2">
+              <label>Rows</label>
+              <input
                 type="number"
                 className="input input-bordered w-full max-w-xs"
                 {...field}
@@ -216,7 +239,7 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
   )
 }
 
-const NumberFieldFormElement: FormElement = {
+const TextAreaFieldFormElement: FormElement = {
   type,
   designerComponent: DesignerComponent,
   formComponent: FormComponent,
@@ -227,8 +250,8 @@ const NumberFieldFormElement: FormElement = {
     extraAttributes,
   }),
   designerBtnElement: {
-    icon: Bs123,
-    label: 'Number Field',
+    icon: BsTextareaResize,
+    label: 'Textarea Field',
   },
   validate: (
     formElement: FormElementInstance,
@@ -243,4 +266,4 @@ const NumberFieldFormElement: FormElement = {
   },
 }
 
-export default NumberFieldFormElement
+export default TextAreaFieldFormElement

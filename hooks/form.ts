@@ -94,6 +94,47 @@ export const useGetForms = async () => {
   }
 }
 
+export const useGetAttendedForms = async () => {
+  try {
+    const accessToken = localStorage.getItem('jwtToken')
+    const response = await fetch(`http://localhost:8000/forms/attended`, {
+      method: 'GET',
+      headers: {
+        // Add your headers here
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+    const data = await response.json()
+    return data
+  } catch (error) {
+    // Handle any network error or invalid response
+    console.error('getForms error:', error)
+  }
+}
+
+export const useGetFormAnswers = async (form_id: string) => {
+  try {
+    const accessToken = localStorage.getItem('jwtToken')
+    const response = await fetch(
+      `http://localhost:8000/forms/deliveries/${form_id}`,
+      {
+        method: 'GET',
+        headers: {
+          // Add your headers here
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    )
+    const data = await response.json()
+    return data
+  } catch (error) {
+    // Handle any network error or invalid response
+    console.error('getForms error:', error)
+  }
+}
+
 export const useSubmitForm = async (
   answers: SubmitFormProps[],
   formId: string
@@ -108,7 +149,7 @@ export const useSubmitForm = async (
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify({ answers: answers }),
+      body: JSON.stringify({ answers: answers, isSubmitted: true }),
     })
   } catch (error) {
     // Handle any network error or invalid response
