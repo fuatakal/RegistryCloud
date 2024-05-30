@@ -6,7 +6,7 @@ import { SubmitFormProps } from '@/types'
 import { FormElementInstance, FormElements } from '@/types/form-elements'
 import { useAtom } from 'jotai'
 import React, { useCallback, useRef, useState, useTransition } from 'react'
-import { HiCursorClick } from 'react-icons/hi'
+import { BiSend } from 'react-icons/bi'
 import { ImSpinner2 } from 'react-icons/im'
 function FormSubmitComponent({
   formId,
@@ -113,16 +113,16 @@ function FormSubmitComponent({
           )
         })}
         <button
-          className="btn btn-primary btn-outline mt-8"
+          className="btn btn-primary btn-outline mt-8 w-[10rem] self-end"
           onClick={() => {
             startTransition(submitForm)
           }}
           disabled={pending}
         >
           {!pending && (
-            <div className="mr-2">
-              <HiCursorClick />
+            <div className="mr-2 flex">
               Submit
+              <BiSend />
             </div>
           )}
           {pending && <ImSpinner2 />}

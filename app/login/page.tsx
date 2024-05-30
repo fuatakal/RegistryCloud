@@ -6,7 +6,7 @@ import axios from 'axios'
 import { useAtom } from 'jotai'
 import tokenAtom from '../../atoms/tokenAtom'
 import navLinksAtom from '@/atoms/navLinksAtom'
-import { staffLinks } from '@/constants'
+import { defaultLinks, staffLinks } from '@/constants'
 import userAtom from '@/atoms/userInfoAtom'
 import { Paths } from '@/routes'
 
@@ -26,9 +26,13 @@ export default function Page() {
         },
       })
       setUser(response.data)
-      localStorage.setItem('user', JSON.stringify(response.data))
-      setNavbarLinks(staffLinks)
-      localStorage.setItem('navBarLinks', JSON.stringify(staffLinks))
+
+      if (response.data.is_staff) {
+        setNavbarLinks(staffLinks)
+      } else {
+        setNavbarLinks(defaultLinks)
+      }
+
       console.log(staffLinks)
       router.push(Paths.HOME)
     } catch (error) {
@@ -55,7 +59,6 @@ export default function Page() {
 
       if (response.status === 200) {
         // TODO: Remove local storage when neccesary
-        localStorage.setItem('jwtToken', response.data.access)
         setToken(response.data.access)
         await getUserInfo(response.data.access)
       }
@@ -66,9 +69,9 @@ export default function Page() {
   }
 
   useEffect(() => {
-    localStorage.removeItem('jwtToken')
-    localStorage.removeItem('user')
-    localStorage.removeItem('navBarLinks')
+    setToken(null)
+    setUser(null)
+    setNavbarLinks(null)
   }, [])
 
   return (

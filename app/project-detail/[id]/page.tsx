@@ -1,8 +1,9 @@
 'use client'
 
 import userAtom from '@/atoms/userInfoAtom'
+import DashboardFormItem from '@/components/DashboardFormItem'
 import StatsCard from '@/components/StatsCard'
-import { useGetFormAnswers, useGetFormbyId } from '@/hooks/form'
+import { useGetFormAnswers, useGetForms } from '@/hooks/form'
 import { Form, FormSubmit } from '@/types'
 import { useAtom } from 'jotai'
 
@@ -15,11 +16,11 @@ interface DetailsProps {
   params: { id: string }
 }
 
-function DetailsPage({ params }: DetailsProps) {
+function ProjectDetailsPage({ params }: DetailsProps) {
   const { id } = params
   const router = useRouter()
 
-  const [form, setForm] = useState<Form>()
+  const [forms, setForms] = useState<Form[]>([])
   const [submits, setSubmits] = useState<FormSubmit[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [user] = useAtom(userAtom)
@@ -30,8 +31,8 @@ function DetailsPage({ params }: DetailsProps) {
 
   useEffect(() => {
     const getForm = async () => {
-      const response = await useGetFormbyId(Number(id))
-      setForm(response)
+      const response = await useGetForms()
+      setForms(response)
       setLoading(false)
     }
 
@@ -45,13 +46,13 @@ function DetailsPage({ params }: DetailsProps) {
 
   if (loading) return
 
-  if (form) {
+  if (forms) {
     return (
       <>
         <div className="py-10 px-5 border-b border-muted">
           <div className="flex justify-between container">
             <div className="flex gap-6 items-center">
-              <h1 className="text-4xl font-bold truncate">{form.name}</h1>
+              <h1 className="text-4xl font-bold truncate">{}</h1>
               <button
                 className="btn btn-primary btn-outline"
                 onClick={() => visit(form.id as number)}
@@ -89,37 +90,20 @@ function DetailsPage({ params }: DetailsProps) {
           />
         </div>
         <div className=" divider divider-neutral my-4" />
-        {user?.is_staff && (
-          <div className="overflow-x-auto px-8">
-            <h1 className=" text-xl font-bold ml-8">Attenders and answers</h1>
-            <div className=" divider" />
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>User</th>
-                  {form.questions?.map((item) => (
-                    <th key={item.id}>
-                      {item.extraAttributes.label as string}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {submits.map((item, index) => (
-                  <tr key={index} className="hover">
-                    <th>{item.deliveryman_email}</th>
-                    {item.answers.map((field) => (
-                      <td key={`${item.deliveryman}`}>{field.answer}</td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        {forms.map((form) => (
+          <DashboardFormItem
+            key={form.id}
+            name={form.name || ''}
+            description={form.description || ''}
+            isCreator
+            onClick={() => {
+              handleClickOnForm(form.id || 0)
+            }}
+          />
+        ))}
       </>
     )
   }
 }
 
-export default DetailsPage
+export default ProjectDetailsPage
