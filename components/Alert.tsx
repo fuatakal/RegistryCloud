@@ -29,7 +29,7 @@ const Alert: React.FC = () => {
       {isVisible && (
         <div
           role="alert"
-          className={`alert-container alert ${alertVariants[variant]}`}
+          className={`alert-container alert ${alertVariants[variant]} z-10`}
         >
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center">

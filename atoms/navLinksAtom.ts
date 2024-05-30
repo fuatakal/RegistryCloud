@@ -1,6 +1,6 @@
 import { NavLink } from '@/types'
-import { atom } from 'jotai'
+import { atomWithStorage } from 'jotai/utils'
 
-const navLinksAtom = atom<NavLink[]>([{ href: '', key: '', name: '' }])
+const navLinksAtom = atomWithStorage<NavLink[] | null>('navbarLinks', null)
 
 export default navLinksAtom
