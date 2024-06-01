@@ -2,7 +2,7 @@
 
 import userAtom from '@/atoms/userInfoAtom'
 import StatsCard from '@/components/StatsCard'
-import { useGetFormAnswers, useGetFormbyId } from '@/hooks/form'
+import { useFormHooks } from '@/hooks/form'
 import { Form, FormSubmit } from '@/types'
 import { useAtom } from 'jotai'
 
@@ -24,19 +24,21 @@ function DetailsPage({ params }: DetailsProps) {
   const [loading, setLoading] = useState<boolean>(true)
   const [user] = useAtom(userAtom)
 
+  const { getFormById, getFormAnswers } = useFormHooks()
+
   const visit = (id: number) => {
     router.push(`/submit/${id.toString()}`)
   }
 
   useEffect(() => {
     const getForm = async () => {
-      const response = await useGetFormbyId(Number(id))
+      const response = await getFormById(Number(id))
       setForm(response)
       setLoading(false)
     }
 
     const getAnswers = async () => {
-      const response = await useGetFormAnswers(id)
+      const response = await getFormAnswers(id)
       setSubmits(response)
     }
     getForm()

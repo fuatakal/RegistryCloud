@@ -9,6 +9,7 @@ import navLinksAtom from '@/atoms/navLinksAtom'
 import { defaultLinks, staffLinks } from '@/constants'
 import userAtom from '@/atoms/userInfoAtom'
 import { Paths } from '@/routes'
+import { RESET } from 'jotai/utils'
 
 export default function Page() {
   const router = useRouter()
@@ -69,9 +70,9 @@ export default function Page() {
   }
 
   useEffect(() => {
-    setToken(null)
-    setUser(null)
-    setNavbarLinks(null)
+    setToken(RESET)
+    setUser(RESET)
+    setNavbarLinks(RESET)
   }, [])
 
   return (

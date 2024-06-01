@@ -21,18 +21,7 @@ export interface FormElementInstance {
   extraAttributes: Record<string, unknown>
 }
 export interface FormElement {
-  validate(
-    element: FormElementInstance & {
-      extraAttributes: {
-        label: string
-        variableName: string
-        required: boolean
-        placeHolder: string
-        render?: boolean
-      }
-    },
-    value: string
-  ): unknown
+  validate: (formElement: FormElementInstance, currentValue: string) => boolean
   type: ElementsType
 
   construct: (id: string) => FormElementInstance

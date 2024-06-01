@@ -10,7 +10,6 @@ import navLinksAtom from '@/atoms/navLinksAtom'
 import userAtom from '@/atoms/userInfoAtom'
 import { useAtom } from 'jotai'
 import { usePathname } from 'next/navigation'
-import tokenAtom from '@/atoms/tokenAtom'
 
 function Navbar() {
   const router = useRouter()
@@ -18,16 +17,12 @@ function Navbar() {
 
   if (pathname.includes('/login') || pathname.includes('/register')) return null
 
-  const [user, setUser] = useAtom(userAtom)
-  const [navbarLinks, setNavbarLinks] = useAtom(navLinksAtom)
-  const [, setToken] = useAtom(tokenAtom)
+  const [user] = useAtom(userAtom)
+  const [navbarLinks] = useAtom(navLinksAtom)
 
   // Function to handle logout
   const handleLogout = () => {
-    setUser(null)
-    setNavbarLinks(null)
-    setToken(null)
-    router.push('/login') // Navigate to login page
+    router.push('/login')
   }
 
   return (

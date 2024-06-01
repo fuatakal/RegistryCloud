@@ -1,6 +1,14 @@
 import { NavLink } from '@/types'
-import { atomWithStorage } from 'jotai/utils'
+import { atomWithStorage, createJSONStorage } from 'jotai/utils'
 
-const navLinksAtom = atomWithStorage<NavLink[] | null>('navbarLinks', null)
+const storage = createJSONStorage<NavLink[] | null>(() => localStorage)
+const navLinksAtom = atomWithStorage<NavLink[] | null>(
+  'navbarLinks',
+  null,
+  storage,
+  {
+    getOnInit: true,
+  }
+)
 
 export default navLinksAtom

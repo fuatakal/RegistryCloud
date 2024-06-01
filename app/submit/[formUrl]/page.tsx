@@ -1,6 +1,6 @@
 'use client'
 
-import { useGetFormbyId } from '@/hooks/form'
+import { useFormHooks } from '@/hooks/form'
 
 import React, { useEffect, useState } from 'react'
 import { Form } from '@/types/index'
@@ -18,9 +18,11 @@ const SubmitPage = ({ params }: SubmitPageProps) => {
   const [form, setForm] = useState<Form>()
   const [loading, setLoading] = useState<boolean>(true)
 
+  const { getFormById } = useFormHooks()
+
   useEffect(() => {
     const getForm = async () => {
-      const response = await useGetFormbyId(Number(formUrl))
+      const response = await getFormById(Number(formUrl))
       setForm(response)
       setLoading(false)
     }
