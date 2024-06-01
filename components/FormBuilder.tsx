@@ -8,7 +8,7 @@ import { DndContext, MouseSensor, useSensor, useSensors } from '@dnd-kit/core'
 import DragOverlayWrapper from './DragOverlayWrapper'
 import formElementsAtom from '@/atoms/formElementsAtom'
 import { Form } from '@/types'
-import { useEditForm, useGetFormbyId, useDeleteForm } from '@/hooks/form'
+import { useFormHooks } from '@/hooks/form'
 import PublishBtn from './PublishBtn'
 import currentFormAtom from '@/atoms/currentFormAtom'
 import { useRouter } from 'next/navigation'
@@ -28,9 +28,11 @@ const FormBuilder = ({ id }: FormBuilderProps) => {
   const [form, setForm] = useAtom(currentFormAtom)
   const [loading, setLoading] = useState<boolean>(true)
 
+  const { editForm, getFormById, deleteForm } = useFormHooks()
+
   const handleDeleteForm = async (formId: number) => {
     try {
-      await useDeleteForm(formId)
+      await deleteForm(formId)
       router.push('/dashboard')
       setAlert({
         isVisible: true,
@@ -44,7 +46,7 @@ const FormBuilder = ({ id }: FormBuilderProps) => {
 
   const handleSaveForm = async () => {
     try {
-      await useEditForm(id, { ...form, questions: formElements } as Form)
+      await editForm(id, { ...form, questions: formElements } as Form)
       setAlert({
         isVisible: true,
         message: `Your form is saved.`,
@@ -57,7 +59,7 @@ const FormBuilder = ({ id }: FormBuilderProps) => {
 
   useEffect(() => {
     const getForm = async () => {
-      const response = await useGetFormbyId(Number(id))
+      const response = await getFormById(Number(id))
       console.log(response)
       setForm(response.data)
       setFormElements(response.questions || [])

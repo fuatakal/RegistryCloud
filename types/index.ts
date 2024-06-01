@@ -22,7 +22,7 @@ export interface Attender {
 
 export interface Project {
   id: number
-  atributes: {
+  attributes: {
     name: string
     desc: string
   }

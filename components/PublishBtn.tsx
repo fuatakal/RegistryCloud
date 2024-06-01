@@ -10,7 +10,7 @@ import { useGetAllUser } from '@/hooks/user'
 import { FaShare } from 'react-icons/fa6'
 import { useAtom } from 'jotai'
 import userAtom from '@/atoms/userInfoAtom'
-import { usePublishForm } from '@/hooks/form'
+import { useFormHooks } from '@/hooks/form'
 import currentFormAtom from '@/atoms/currentFormAtom'
 
 interface PublishBtnProps {
@@ -26,6 +26,8 @@ const PublishBtn = ({ formId }: PublishBtnProps) => {
   const [currentForm] = useAtom(currentFormAtom)
 
   const handleToggle = () => setIsOpen((prev) => !prev)
+
+  const { publishForm } = useFormHooks()
 
   const publishSchema = yup.object().shape({
     users: yup.array().min(1).of(yup.number().required()).required(),
@@ -57,7 +59,7 @@ const PublishBtn = ({ formId }: PublishBtnProps) => {
     const parsedUsers = values.users.map((userId) => {
       return { attender: userId }
     })
-    await usePublishForm(parsedUsers, formId)
+    await publishForm(parsedUsers, formId)
     handleToggle()
   }
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { alertStateAtom } from '@/atoms/alertAtom'
-import { useSubmitForm } from '@/hooks/form'
+import { useFormHooks } from '@/hooks/form'
 import { SubmitFormProps } from '@/types'
 import { FormElementInstance, FormElements } from '@/types/form-elements'
 import { useAtom } from 'jotai'
@@ -23,6 +23,8 @@ function FormSubmitComponent({
   const [pending, startTransition] = useTransition()
 
   const [, setAlert] = useAtom(alertStateAtom)
+
+  const { submitForm } = useFormHooks()
 
   const validateForm = useCallback(() => {
     for (const field of content) {
@@ -54,7 +56,7 @@ function FormSubmitComponent({
     }
   }, [])
 
-  const submitForm = async () => {
+  const handleSubmitForm = async () => {
     formErrors.current = {}
     const validForm = validateForm()
     if (!validForm) {
@@ -65,7 +67,7 @@ function FormSubmitComponent({
     try {
       const jsonContent = JSON.stringify(formValues.current)
       console.log(jsonContent)
-      await useSubmitForm(formValues.current, formId)
+      await submitForm(formValues.current, formId)
       setSubmitted(true)
       setAlert({
         isVisible: true,
@@ -115,7 +117,7 @@ function FormSubmitComponent({
         <button
           className="btn btn-primary btn-outline mt-8 w-[10rem] self-end"
           onClick={() => {
-            startTransition(submitForm)
+            startTransition(handleSubmitForm)
           }}
           disabled={pending}
         >

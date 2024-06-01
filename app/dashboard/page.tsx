@@ -4,14 +4,14 @@ import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import { AttendedForm, Project } from '@/types'
-import { useGetAttendedForms } from '@/hooks/form'
 import DashboardFormItem from '@/components/DashboardFormItem'
 import { useAtom } from 'jotai'
-import tokenAtom from '@/atoms/tokenAtom'
 import userAtom from '@/atoms/userInfoAtom'
-import { useGetProjects } from '@/hooks/project'
 import ProjectItem from '@/components/ProjectItem'
 import CreateProjectBtn from '@/components/CreateProjectBtn'
+import tokenAtom from '@/atoms/tokenAtom'
+import { useProjectHooks } from '@/hooks/project'
+import { useFormHooks } from '@/hooks/form'
 
 export default function Home() {
   const router = useRouter()
@@ -20,6 +20,9 @@ export default function Home() {
   const [attendedforms, setAttendedForms] = useState<AttendedForm[]>([])
   const [token] = useAtom(tokenAtom)
   const [user] = useAtom(userAtom)
+
+  const { getProjects } = useProjectHooks()
+  const { getAttendedForms } = useFormHooks()
 
   const handleClickOnForm = (id: number) => {
     router.push(`/form-details/${id}`)
@@ -31,10 +34,6 @@ export default function Home() {
 
   useEffect(() => {
     const checkToken = async () => {
-      if (!token) {
-        setLoading(true)
-        return
-      }
       try {
         await axios.post(
           'http://localhost:8000/auth/jwt/verify/',
@@ -50,10 +49,11 @@ export default function Home() {
       }
 
       if (user?.is_staff) {
-        const data = await useGetProjects()
+        const data = await getProjects()
+        console.log(data)
         setProjects(data)
       } else {
-        const data = await useGetAttendedForms()
+        const data = await getAttendedForms()
         setAttendedForms(data)
       }
     }
@@ -89,8 +89,8 @@ export default function Home() {
                 ? projects.map((project) => (
                     <ProjectItem
                       key={project.id}
-                      name={project.atributes.name || ''}
-                      description={project.atributes.desc || ''}
+                      name={project.attributes?.name || ''}
+                      description={project.attributes?.desc || ''}
                       onClick={() => {
                         handleClickOnProject(project.id || 0)
                       }}

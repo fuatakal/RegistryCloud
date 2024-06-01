@@ -3,13 +3,15 @@ import Modal from './Modal'
 import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useCreateForm } from '@/hooks/form'
+import { useFormHooks } from '@/hooks/form'
 import { useRouter } from 'next/navigation'
 
 const CreateFormBtn = () => {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const handleToggle = () => setIsOpen((prev) => !prev)
+
+  const { createForm } = useFormHooks()
 
   const formCreateSchema = yup.object().shape({
     name: yup.string().min(2).max(50),
@@ -32,7 +34,7 @@ const CreateFormBtn = () => {
   }, [form, isOpen])
 
   const handleSubmit = async (values: formCreateSchemaProps) => {
-    const responseData = await useCreateForm(
+    const responseData = await createForm(
       values.name as string,
       values.description as string
     )
@@ -41,8 +43,8 @@ const CreateFormBtn = () => {
   }
 
   return (
-    <div className=" w-[30rem] self-start">
-      <button className="btn btn-accent" onClick={() => setIsOpen(true)}>
+    <div>
+      <button className="btn  btn-primary" onClick={() => setIsOpen(true)}>
         Create Form +
       </button>
       <Modal isOpen={isOpen}>

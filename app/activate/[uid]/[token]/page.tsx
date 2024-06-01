@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import axios from 'axios'
 
@@ -36,13 +36,6 @@ function ActivatePage() {
     }
   }
 
-  useEffect(() => {
-    if (uid && token) {
-      // Only attempt activation if parameters exist
-      handleActivation()
-    }
-  }, [uid, token])
-
   const handleActivationClick = async () => {
     // Handle potential re-activation attempt (optional)
     if (activationStatus === 'success') {
@@ -54,8 +47,12 @@ function ActivatePage() {
 
   return (
     <main className="h-screen flex items-center justify-center">
-      <div className="container max-w-2xl mx-auto mt-12 rounded-3xl bg-success p-6">
-        <button type="submit" onClick={handleActivationClick}>
+      <div className="flex justify-center max-w-2xl mx-auto rounded-3xl p-6">
+        <button
+          className="btn btn-outline btn-info min-w-6 min-h-3"
+          type="submit"
+          onClick={handleActivationClick}
+        >
           Activate My Account
         </button>
       </div>

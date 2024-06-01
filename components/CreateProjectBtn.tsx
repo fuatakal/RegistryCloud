@@ -3,14 +3,14 @@ import Modal from './Modal'
 import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useCreateProject } from '@/hooks/project'
-import { useRouter } from 'next/navigation'
+import { useProjectHooks } from '@/hooks/project'
 import { Project } from '@/types'
 
 const CreateProjectBtn = () => {
-  const router = useRouter()
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const handleToggle = () => setIsOpen((prev) => !prev)
+
+  const { createProject } = useProjectHooks()
 
   const ProjectCreateSchema = yup.object().shape({
     name: yup.string().min(2).max(50),
@@ -33,14 +33,14 @@ const CreateProjectBtn = () => {
   }, [Project, isOpen])
 
   const handleSubmit = async (values: ProjectCreateSchemaProps) => {
-    await useCreateProject({
-      atributes: {
+    await createProject({
+      attributes: {
         name: values.name as string,
         desc: values.description as string,
       },
     } as Project)
-    router.push(`/dashboard`)
     handleToggle()
+    window.location.reload()
   }
 
   return (
