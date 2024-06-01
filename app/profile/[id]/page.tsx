@@ -13,37 +13,20 @@ export default function ProfilePage({ params }: ProfilePageProps) {
   const [user] = useAtom(userAtom)
 
   return (
-    <div className="flex flex-col items-center ">
-      <div className="my-8 space-y-6 min-w-[50rem]">
-        <div className="flex space-x-4">
-          <div className="border rounded-lg shadow-lg p-6 w-[25rem]">
-            <p className="font-bold text-black mb-2">First Name:</p>
-            <div className="text-blue-400 text-2xl font-bold mb-4">
-              {user?.first_name}
-            </div>
-          </div>
-          <div className="border rounded-lg shadow-lg p-6 w-[25rem]">
-            <p className="font-bold text-black mb-2">Last Name:</p>
-            <div className="text-blue-400 text-2xl font-bold mb-4">
-              {user?.last_name}
-            </div>
-          </div>
+    <div className="min-h-screen flex items-start pt-12 justify-center bg-gray-100">
+      <div className="bg-white p-12 rounded-lg shadow-lg w-full max-w-md">
+        <div className="flex justify-center mb-6">
+          <img
+            alt="User profile"
+            src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
+            className="w-48 h-48 rounded-full"
+          />
         </div>
-        <div className="border rounded-lg shadow-lg p-6">
-          <p className="font-bold text-black mb-2">Email:</p>
-          <div className="text-blue-400 text-2xl font-bold mb-4">
-            {user?.email}
-          </div>
-        </div>
-        <div className="border rounded-lg shadow-lg p-6 ">
-          <p className="font-bold text-black mb-2">Created Forms:</p>
-          <p className="text-blue-400 text-2xl font-bold mb-4">something</p>
-        </div>
-        <div className="border rounded-lg shadow-lg p-6">
-          <p className="font-bold text-black mb-2">Attended Forms:</p>
-          <p className="text-blue-400 text-2xl font-bold mb-4">something</p>
-        </div>
+        <h2 className="text-3xl font-semibold text-center mb-2">
+          {user?.first_name} {user?.last_name}
+        </h2>
+        <p className="text-gray-700 text-center text-xl">{user?.email}</p>
       </div>
     </div>
-  )
+  );
 }
