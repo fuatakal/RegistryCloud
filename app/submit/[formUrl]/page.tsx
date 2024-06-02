@@ -33,7 +33,7 @@ const SubmitPage = ({ params }: SubmitPageProps) => {
 
   return (
     <>
-      <h1 className=" font-bold text-3xl self-center mt-72">{form?.name}</h1>
+      <h1 className=" font-bold text-3xl self-center my-16">{form?.name}</h1>
       <FormSubmitComponent formId={formUrl} content={form?.questions || []} />
     </>
   )

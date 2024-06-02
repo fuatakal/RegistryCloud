@@ -2,7 +2,6 @@
 
 import React, { ChangeEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import axios from 'axios'
 
 interface RegisterProps {
   first_name: string
@@ -28,15 +27,18 @@ export default function Register() {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleRegister = async () => {
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
     try {
-      await axios.post('http://localhost:8000/auth/users/', formData, {
+      await fetch('http://localhost:8000/auth/users/', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify(formData),
       })
 
-      router.push('/login') // Redirect to login page after successful registration
+      router.push('/login')
     } catch (error) {
       console.error('Registration error:', error)
     }
@@ -108,7 +110,7 @@ export default function Register() {
               Register
             </button>
             <span className="rounded-lg p-2 font-bold text-sm mt-12 self-center">
-              Already have an account?{' '}
+              Already have an account?
               <button
                 className="text-blue-500"
                 type="button"

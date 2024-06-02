@@ -1,6 +1,9 @@
 'use client'
 
+import projectAtom from '@/atoms/selectedProject'
 import userAtom from '@/atoms/userInfoAtom'
+import CreateFormBtn from '@/components/CreateFormBtn'
+import DashboardFormItem from '@/components/DashboardFormItem'
 import StatsCard from '@/components/StatsCard'
 import { useFormHooks } from '@/hooks/form'
 import { Form, FormSubmit } from '@/types'
@@ -20,29 +23,40 @@ function DetailsPage({ params }: DetailsProps) {
   const router = useRouter()
 
   const [form, setForm] = useState<Form>()
+  const [detailForms, setDetailForms] = useState<Form[]>([])
   const [submits, setSubmits] = useState<FormSubmit[]>([])
   const [loading, setLoading] = useState<boolean>(true)
-  const [user] = useAtom(userAtom)
 
-  const { getFormById, getFormAnswers } = useFormHooks()
+  const [user] = useAtom(userAtom)
+  const [projectId] = useAtom(projectAtom)
+
+  const { getFormById, getFormAnswers, getFormsOfMaster } = useFormHooks()
 
   const visit = (id: number) => {
     router.push(`/submit/${id.toString()}`)
   }
 
+  const onClickForm = (id: number) => {
+    router.push(`/form-details/${id.toString()}`)
+  }
+
   useEffect(() => {
     const getForm = async () => {
-      const response = await getFormById(Number(id))
-      setForm(response)
-      setLoading(false)
+      const response1 = await getFormById(Number(id))
+      setForm(response1)
+      const response2 = await getFormsOfMaster(response1.id)
+      setDetailForms(response2)
     }
 
     const getAnswers = async () => {
       const response = await getFormAnswers(id)
       setSubmits(response)
+      setLoading(false)
     }
+
     getForm()
     getAnswers()
+    console.log(form)
   }, [])
 
   if (loading) return
@@ -63,7 +77,7 @@ function DetailsPage({ params }: DetailsProps) {
             </div>
 
             <div className="flex gap-6 justify-center items-center">
-              {user?.is_staff ? (
+              {user?.is_staff && (
                 <button
                   className="btn btn-accent"
                   onClick={() => {
@@ -72,7 +86,13 @@ function DetailsPage({ params }: DetailsProps) {
                 >
                   Edit <FaEdit size={16} />
                 </button>
-              ) : null}
+              )}
+              {form.is_master && (
+                <CreateFormBtn
+                  projectId={projectId as number}
+                  master_form_id={form.id}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -91,34 +111,74 @@ function DetailsPage({ params }: DetailsProps) {
           />
         </div>
         <div className=" divider divider-neutral my-4" />
-        {user?.is_staff && (
-          <div className="overflow-x-auto px-8">
-            <h1 className=" text-xl font-bold ml-8">Attenders and answers</h1>
-            <div className=" divider" />
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>User</th>
-                  {form.questions?.map((item) => (
-                    <th key={item.id}>
-                      {item.extraAttributes.label as string}
-                    </th>
+        <div role="tablist" className="tabs tabs-bordered self-center mb-4">
+          {user?.is_staff && (
+            <>
+              <input
+                type="radio"
+                name="my_tabs_1"
+                role="tab"
+                className="tab"
+                aria-label="Answers"
+                defaultChecked
+              />
+              <div role="tabpanel" className="tab-content p-10 min-w-[50rem]">
+                <div className="overflow-x-auto px-8">
+                  <h1 className=" text-xl font-bold ml-8">
+                    Attenders and answers
+                  </h1>
+                  <div className=" divider" />
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>User</th>
+                        {form.questions?.map((item) => (
+                          <th key={item.id}>
+                            {item.extraAttributes.label as string}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {submits.map((item, index) => (
+                        <tr key={index} className="hover">
+                          <th>{item.deliveryman_email}</th>
+                          {item.answers.map((field) => (
+                            <td key={`${item.deliveryman}`}>{field.answer}</td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )}
+          {form.is_master && (
+            <>
+              <input
+                type="radio"
+                name="my_tabs_1"
+                role="tab"
+                className="tab"
+                aria-label="Detail Forms"
+              />
+              <div role="tabpanel" className="tab-content p-10 min-w-[50rem]">
+                <h1 className=" text-xl font-bold ml-8">Detail Forms</h1>
+                <div className=" divider" />
+                <ul>
+                  {detailForms.map((child) => (
+                    <DashboardFormItem
+                      key={child.id}
+                      form={child}
+                      onClick={onClickForm}
+                    />
                   ))}
-                </tr>
-              </thead>
-              <tbody>
-                {submits.map((item, index) => (
-                  <tr key={index} className="hover">
-                    <th>{item.deliveryman_email}</th>
-                    {item.answers.map((field) => (
-                      <td key={`${item.deliveryman}`}>{field.answer}</td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </ul>
+              </div>{' '}
+            </>
+          )}
+        </div>
       </>
     )
   }

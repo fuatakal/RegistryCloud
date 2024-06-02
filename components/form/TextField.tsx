@@ -69,12 +69,30 @@ const FormComponent: React.FC<{
 
   const [value, setValue] = useState(defaultValue || '')
   const [error, setError] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
-    setError(isInvalid === true)
+    if (isInvalid !== undefined) {
+      setError(isInvalid)
+      setErrorMessage(isInvalid ? 'This field is required!' : '')
+    }
   }, [isInvalid])
 
   const { label, required, placeHolder } = element.extraAttributes
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (!submitValue) return
+
+    const valid = TextFieldFormElement.validate(element, e.target.value)
+    setError(!valid)
+    if (!valid) {
+      setErrorMessage('This field is required!')
+      return
+    }
+    setErrorMessage('')
+    submitValue(parseInt(element.id), e.target.value)
+  }
+
   return (
     <div className="flex flex-col gap-2 w-full">
       <label className={error ? 'text-red-500' : ''}>
@@ -89,15 +107,10 @@ const FormComponent: React.FC<{
         }
         placeholder={placeHolder}
         onChange={(e) => setValue(e.target.value)}
-        onBlur={(e) => {
-          if (!submitValue) return
-          const valid = TextFieldFormElement.validate(element, e.target.value)
-          setError(!valid)
-          if (!valid) return
-          submitValue(parseInt(element.id), e.target.value)
-        }}
+        onBlur={handleBlur}
         value={value}
       />
+      {error && <span className="text-red-500">{errorMessage}</span>}
     </div>
   )
 }
@@ -235,7 +248,7 @@ const TextFieldFormElement: FormElement = {
   ): boolean => {
     const element = formElement as CustomInstance
     if (element.extraAttributes.required) {
-      return currentValue.length > 0
+      return currentValue.trim().length > 0
     }
 
     return true

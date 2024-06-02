@@ -5,13 +5,21 @@ import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useFormHooks } from '@/hooks/form'
 import { useRouter } from 'next/navigation'
+import { useProjectHooks } from '@/hooks/project'
 
-const CreateFormBtn = () => {
+interface CreateFormBtnProps {
+  projectId: number
+  master_form_id?: number
+}
+
+const CreateFormBtn = ({ projectId, master_form_id }: CreateFormBtnProps) => {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const handleToggle = () => setIsOpen((prev) => !prev)
 
   const { createForm } = useFormHooks()
+
+  const { addFormToProject } = useProjectHooks()
 
   const formCreateSchema = yup.object().shape({
     name: yup.string().min(2).max(50),
@@ -36,8 +44,12 @@ const CreateFormBtn = () => {
   const handleSubmit = async (values: formCreateSchemaProps) => {
     const responseData = await createForm(
       values.name as string,
-      values.description as string
+      values.description as string,
+      master_form_id
     )
+    const idArray = Array<number>()
+    idArray.push(responseData.id)
+    await addFormToProject(idArray, projectId)
     router.push(`/form-builder/${responseData?.id}`)
     handleToggle()
   }
@@ -45,12 +57,14 @@ const CreateFormBtn = () => {
   return (
     <div>
       <button className="btn  btn-primary" onClick={() => setIsOpen(true)}>
-        Create Form +
+        {master_form_id ? 'Create Detail Form+' : 'Create Form+'}
       </button>
       <Modal isOpen={isOpen}>
         <div className="flex flex-col justify-center">
           <div className="flex justify-between ">
-            <h3 className="font-bold text-lg">Create Form</h3>
+            <h3 className="font-bold text-lg">
+              {master_form_id ? 'Create Detail Form' : 'Create Form'}
+            </h3>
             <button
               className="btn btn-circle btn-xs btn-outline"
               onClick={handleToggle}

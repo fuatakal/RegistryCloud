@@ -322,7 +322,9 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
                       }}
                     />
                     <label className="flex items-center gap-2">
-                      <span>Show Text Field</span>
+                      <span className=" text-sm font-light">
+                        Show Text Field
+                      </span>
                       <input
                         type="checkbox"
                         checked={option.showTextField}

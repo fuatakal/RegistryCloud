@@ -15,7 +15,11 @@ export const useFormHooks = () => {
     return response.json()
   }
 
-  const createForm = async (name: string, description: string) => {
+  const createForm = async (
+    name: string,
+    description: string,
+    master_form_id?: number
+  ) => {
     if (!token) throw new Error('No token available')
     try {
       const response = await fetch(`http://localhost:8000/forms/`, {
@@ -24,7 +28,7 @@ export const useFormHooks = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name, description }),
+        body: JSON.stringify({ name, description, master_form_id }),
       })
       const data = await response.json()
       console.log(data)
@@ -77,6 +81,26 @@ export const useFormHooks = () => {
           Authorization: `Bearer ${token}`,
         },
       })
+      const data = await response.json()
+      return data
+    } catch (error) {
+      console.error('getForms error:', error)
+    }
+  }
+
+  const getFormsOfMaster = async (master_form_id: number) => {
+    if (!token) throw new Error('No token available')
+    try {
+      const response = await fetch(
+        `http://localhost:8000/forms/detail_forms_of/${master_form_id}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
       const data = await response.json()
       return data
     } catch (error) {
@@ -167,5 +191,6 @@ export const useFormHooks = () => {
     getFormAnswers,
     submitForm,
     deleteForm,
+    getFormsOfMaster,
   }
 }

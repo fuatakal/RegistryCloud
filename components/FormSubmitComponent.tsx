@@ -29,8 +29,9 @@ function FormSubmitComponent({
   const validateForm = useCallback(() => {
     for (const field of content) {
       const actualValue =
-        formValues.current.find((item) => item.question.toString() === field.id)
+        formValues.current.find((item) => item.question === Number(field.id))
           ?.answer || ''
+      console.log(actualValue)
       const valid = FormElements[field.type].validate(field, actualValue)
 
       if (!valid) {
@@ -93,7 +94,7 @@ function FormSubmitComponent({
   }
 
   return (
-    <div className="flex justify-center w-full h-full items-center p-8">
+    <div className="flex justify-center w-full h-full my-32 items-center p-8">
       <div
         key={renderKey}
         className="max-w-[820px] flex flex-col gap-4 flex-grow bg-background w-full p-8 overflow-y-auto border shadow-xl rounded"

@@ -21,13 +21,13 @@ export interface Attender {
 }
 
 export interface Project {
-  id: number
-  attributes: {
+  id?: number
+  attributes?: {
     name: string
     desc: string
   }
-  forms: number[]
-  executives: number[]
+  forms?: number[]
+  executives?: number[]
 }
 
 export interface Form {
@@ -37,6 +37,8 @@ export interface Form {
   creator?: number
   questions?: FormElementInstance[]
   attenders?: Attender[]
+  is_master?: boolean
+  master_form_id?: number
 }
 
 export interface SubmitFormProps {
