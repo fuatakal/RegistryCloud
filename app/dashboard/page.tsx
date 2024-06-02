@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import { AttendedForm, Project } from '@/types'
-import DashboardFormItem from '@/components/DashboardFormItem'
 import { useAtom } from 'jotai'
 import userAtom from '@/atoms/userInfoAtom'
 import ProjectItem from '@/components/ProjectItem'
@@ -12,6 +11,8 @@ import CreateProjectBtn from '@/components/CreateProjectBtn'
 import tokenAtom from '@/atoms/tokenAtom'
 import { useProjectHooks } from '@/hooks/project'
 import { useFormHooks } from '@/hooks/form'
+import Loading from '@/components/Loading'
+import DashboardAttendedFormItem from '@/components/DashboardAttendedFormItem'
 
 export default function Home() {
   const router = useRouter()
@@ -65,10 +66,7 @@ export default function Home() {
   return (
     <main>
       {loading ? (
-        // Loading screen while checking token
-        <div className="min-h-screen flex justify-center items-center">
-          <p>Loading...</p>
-        </div>
+        <Loading />
       ) : (
         // Content after token check
         <div className="min-h-screen flex p-12 justify-center">
@@ -97,11 +95,10 @@ export default function Home() {
                     />
                   ))
                 : attendedforms.map((form) => (
-                    <DashboardFormItem
+                    <DashboardAttendedFormItem
                       key={form.form}
-                      name={form.formName || ''}
-                      description={form.formDescription || ''}
                       isSubmitted={form.isSubmitted}
+                      form={form}
                       onClick={() => {
                         handleClickOnForm(form.form || 0)
                       }}

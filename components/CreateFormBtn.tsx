@@ -6,6 +6,8 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useFormHooks } from '@/hooks/form'
 import { useRouter } from 'next/navigation'
 import { useProjectHooks } from '@/hooks/project'
+import { useAtom } from 'jotai'
+import currentFormAtom from '@/atoms/currentFormAtom'
 
 interface CreateFormBtnProps {
   projectId: number
@@ -16,6 +18,8 @@ const CreateFormBtn = ({ projectId, master_form_id }: CreateFormBtnProps) => {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const handleToggle = () => setIsOpen((prev) => !prev)
+
+  const [, setForm] = useAtom(currentFormAtom)
 
   const { createForm } = useFormHooks()
 
@@ -47,6 +51,11 @@ const CreateFormBtn = ({ projectId, master_form_id }: CreateFormBtnProps) => {
       values.description as string,
       master_form_id
     )
+    setForm({
+      name: values.name,
+      description: values.description,
+      master_form_id,
+    })
     const idArray = Array<number>()
     idArray.push(responseData.id)
     await addFormToProject(idArray, projectId)

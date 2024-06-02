@@ -4,13 +4,15 @@ import projectAtom from '@/atoms/selectedProject'
 import userAtom from '@/atoms/userInfoAtom'
 import CreateFormBtn from '@/components/CreateFormBtn'
 import DashboardFormItem from '@/components/DashboardFormItem'
+import Loading from '@/components/Loading'
 import StatsCard from '@/components/StatsCard'
 import { useFormHooks } from '@/hooks/form'
 import { Form, FormSubmit } from '@/types'
 import { useAtom } from 'jotai'
 
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import { DownloadTableExcel } from 'react-export-table-to-excel'
 import { FaArrowAltCircleRight, FaEdit } from 'react-icons/fa'
 import { LuView } from 'react-icons/lu'
 
@@ -21,6 +23,8 @@ interface DetailsProps {
 function DetailsPage({ params }: DetailsProps) {
   const { id } = params
   const router = useRouter()
+
+  const tableRef = useRef(null)
 
   const [form, setForm] = useState<Form>()
   const [detailForms, setDetailForms] = useState<Form[]>([])
@@ -59,7 +63,7 @@ function DetailsPage({ params }: DetailsProps) {
     console.log(form)
   }, [])
 
-  if (loading) return
+  if (loading) return <Loading />
 
   if (form) {
     return (
@@ -88,10 +92,19 @@ function DetailsPage({ params }: DetailsProps) {
                 </button>
               )}
               {form.is_master && (
-                <CreateFormBtn
-                  projectId={projectId as number}
-                  master_form_id={form.id}
-                />
+                <>
+                  <CreateFormBtn
+                    projectId={projectId as number}
+                    master_form_id={form.id}
+                  />
+                  <DownloadTableExcel
+                    filename={`${form.name}_answers`}
+                    sheet="answers"
+                    currentTableRef={tableRef.current}
+                  >
+                    <button className="btn btn-info"> Export excel </button>
+                  </DownloadTableExcel>
+                </>
               )}
             </div>
           </div>
@@ -128,7 +141,7 @@ function DetailsPage({ params }: DetailsProps) {
                     Attenders and answers
                   </h1>
                   <div className=" divider" />
-                  <table className="table">
+                  <table className="table" ref={tableRef}>
                     <thead>
                       <tr>
                         <th>User</th>

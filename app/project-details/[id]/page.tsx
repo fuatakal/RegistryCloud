@@ -3,6 +3,7 @@
 import projectAtom from '@/atoms/selectedProject'
 import CreateFormBtn from '@/components/CreateFormBtn'
 import DashboardFormItem from '@/components/DashboardFormItem'
+import Loading from '@/components/Loading'
 import StatsCard from '@/components/StatsCard'
 import { useProjectHooks } from '@/hooks/project'
 import { Form, Project } from '@/types'
@@ -80,7 +81,7 @@ function ProjectDetailsPage({ params }: DetailsProps) {
     fetchProject()
   }, [])
 
-  if (loading) return
+  if (loading) return <Loading />
 
   if (tree) {
     return (
@@ -109,8 +110,10 @@ function ProjectDetailsPage({ params }: DetailsProps) {
             </div>
           </div>
         </div>
-        <div className="py-5 px-10 border-b border-muted">
-          <div className="container flex gap-2 items-center justify-between"></div>
+        <div className="py-5 px-10">
+          <div className="container flex gap-2 items-center justify-between">
+            <p>{project?.attributes?.name}</p>
+          </div>
         </div>
         <div className="w-[400px] pt-8 gap-4 stats self-center mt-2  shadow">
           <StatsCard
@@ -129,6 +132,7 @@ function ProjectDetailsPage({ params }: DetailsProps) {
             <h1 className=" font-bold text-2xl mr-auto">Forms</h1>
             <CreateFormBtn projectId={project?.id as number} />
           </div>
+          <div className=" divider divider-neutral my-6" />
 
           <ul className=" w-full">
             <ul className="w-full">

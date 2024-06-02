@@ -1,12 +1,13 @@
 import type { Metadata } from 'next'
 import React from 'react'
-import { Inter } from 'next/font/google'
+import { Roboto } from 'next/font/google'
 import './globals.css'
 import NextTopLoader from 'nextjs-toploader'
 import Navbar from '@/components/Navbar'
 import Alert from '@/components/Alert'
+import Footer from '@/components/Footer'
 
-const inter = Inter({ subsets: ['latin'] })
+const roboto = Roboto({ subsets: ['latin'], weight: ['400', '700'] })
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -20,11 +21,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-theme="cupcake">
-      <body className={inter.className}>
+      <body className={`${roboto.className}`}>
         <Alert />
         <NextTopLoader />
         <Navbar />
         {children}
+        <Footer />
       </body>
     </html>
   )

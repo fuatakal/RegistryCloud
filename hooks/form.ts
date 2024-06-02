@@ -6,13 +6,18 @@ export const useFormHooks = () => {
   const [token] = useAtom(tokenAtom)
 
   const getFormById = async (id: number) => {
-    const response = await fetch(`http://localhost:8000/forms/${id}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    return response.json()
+    if (!token) throw new Error('No token available')
+    try {
+      const response = await fetch(`http://localhost:8000/forms/${id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      return response.json()
+    } catch (error) {
+      console.error('createForm error:', error)
+    }
   }
 
   const createForm = async (
@@ -28,7 +33,12 @@ export const useFormHooks = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name, description, master_form_id }),
+        body: JSON.stringify({
+          name,
+          description,
+          master_form_id,
+          is_master: master_form_id === undefined,
+        }),
       })
       const data = await response.json()
       console.log(data)

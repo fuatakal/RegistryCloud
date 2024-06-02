@@ -12,6 +12,7 @@ import { useAtom } from 'jotai'
 import userAtom from '@/atoms/userInfoAtom'
 import { useFormHooks } from '@/hooks/form'
 import currentFormAtom from '@/atoms/currentFormAtom'
+import Loading from './Loading'
 
 interface PublishBtnProps {
   formId: number
@@ -63,7 +64,7 @@ const PublishBtn = ({ formId }: PublishBtnProps) => {
     handleToggle()
   }
 
-  if (!formId || !currentUser || loading) return
+  if (!formId || !currentUser || loading) return <Loading />
 
   return (
     <div>

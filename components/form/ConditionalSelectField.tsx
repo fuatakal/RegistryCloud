@@ -170,7 +170,10 @@ const FormComponent: React.FC<{
               )
               setError(!valid)
               if (!valid) return
-              submitValue(parseInt(element.id), e.target.value)
+              submitValue(
+                parseInt(element.id),
+                `${selectedOption}: ${e.target.value}`
+              )
             }}
             value={value}
           />

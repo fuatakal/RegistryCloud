@@ -81,10 +81,6 @@ const FormComponent: React.FC<{
   const { label, required, placeHolder, computationType } =
     element.extraAttributes
 
-  const handleAddInput = () => {
-    setValues([...values, 0])
-  }
-
   const handleInputChange = (index: number, value: number) => {
     const newValues = values.slice()
     newValues[index] = value
@@ -103,9 +99,9 @@ const FormComponent: React.FC<{
     if (computationType === 'average') {
       const sum = values.reduce((acc, val) => acc + val, 0)
       return sum / values.length
-    } else if (computationType === 'bmi' && values.length >= 2) {
+    } else if (computationType === 'bmi' && values.length === 2) {
       const [weight, height] = values
-      return weight / (height * height)
+      return (weight / (height * height)) * 10000
     }
     return ''
   }
@@ -128,33 +124,9 @@ const FormComponent: React.FC<{
             type="number"
             onChange={(e) => handleInputChange(index, Number(e.target.value))}
             onBlur={handleBlur}
-            value={value}
           />
-          {values.length > 2 && (
-            <button
-              className="btn btn-ghost"
-              onClick={(e) => {
-                e.preventDefault()
-                const newValues = values.slice()
-                newValues.splice(index, 1)
-                setValues(newValues)
-              }}
-            >
-              <AiOutlineClose />
-            </button>
-          )}
         </div>
       ))}
-      <button
-        className="btn btn-outline btn-accent gap-2"
-        onClick={(e) => {
-          e.preventDefault() // avoid submit
-          handleAddInput()
-        }}
-      >
-        <AiOutlinePlus />
-        Add
-      </button>
       <div className="mt-2">
         <label>Result: {calculateResult()}</label>
       </div>
@@ -279,54 +251,71 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
             <>
               <div className="flex justify-between items-center">
                 <label>Inputs</label>
-                <button
-                  className="btn btn-outline btn-accent gap-2"
-                  onClick={(e) => {
-                    e.preventDefault() // avoid submit
-                    form.setValue('inputs', field.value?.concat(0))
-                  }}
-                >
-                  <AiOutlinePlus />
-                  Add
-                </button>
+                {(form.watch('computationType') === 'bmi' &&
+                  (form.watch('inputs')?.length as number) < 3) ||
+                  (form.watch('computationType') !== 'bmi' && (
+                    <button
+                      className="btn btn-outline btn-accent gap-2"
+                      onClick={(e) => {
+                        e.preventDefault() // avoid submit
+                        form.setValue('inputs', field.value?.concat(0))
+                      }}
+                    >
+                      <AiOutlinePlus />
+                      Add
+                    </button>
+                  ))}
               </div>
               <div className="flex flex-col gap-2 mt-2">
-                {form.watch('inputs')?.map((input, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between gap-1"
-                  >
-                    <input
-                      placeholder=""
-                      type="number"
-                      className="input input-bordered w-[8rem]"
-                      disabled
-                      value={input}
-                      onChange={(e) => {
-                        const newValues = Array.isArray(field.value)
-                          ? [...field.value]
-                          : []
-                        newValues[index] = Number(e.target.value)
-                        field.onChange(newValues)
-                      }}
-                    />
-                    {form.watch('inputs') && (
-                      <button
-                        className="btn btn-ghost"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          const newInputs = Array.isArray(field.value)
-                            ? [...field.value]
-                            : []
-                          newInputs.splice(index, 1)
-                          field.onChange(newInputs)
-                        }}
-                      >
-                        <AiOutlineClose />
-                      </button>
-                    )}
-                  </div>
-                ))}
+                {form.watch('computationType') !== 'bmi' &&
+                  form.watch('inputs')?.map((input, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between gap-1"
+                    >
+                      <input
+                        placeholder={`${form.watch('placeHolder')}-${index}`}
+                        type="text"
+                        className="input input-bordered w-[12rem]"
+                        disabled
+                      />
+                      {(form.watch('inputs')?.length as number) > 2 && (
+                        <button
+                          className="btn btn-ghost"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            const newInputs = Array.isArray(field.value)
+                              ? [...field.value]
+                              : []
+                            newInputs.splice(index, 1)
+                            field.onChange(newInputs)
+                          }}
+                        >
+                          <AiOutlineClose />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                {form.watch('computationType') === 'bmi' && (
+                  <>
+                    <div className="flex items-center justify-between gap-1">
+                      <input
+                        placeholder="Weight"
+                        type="text"
+                        className="input input-bordered w-[8rem]"
+                        disabled
+                      />
+                    </div>
+                    <div className="flex items-center justify-between gap-1">
+                      <input
+                        placeholder="Height"
+                        type="text"
+                        className="input input-bordered w-[8rem]"
+                        disabled
+                      />
+                    </div>
+                  </>
+                )}
               </div>
             </>
           )}

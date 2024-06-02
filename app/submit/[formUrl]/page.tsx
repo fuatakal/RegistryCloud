@@ -5,6 +5,7 @@ import { useFormHooks } from '@/hooks/form'
 import React, { useEffect, useState } from 'react'
 import { Form } from '@/types/index'
 import FormSubmitComponent from '@/components/FormSubmitComponent'
+import Loading from '@/components/Loading'
 
 interface SubmitPageProps {
   params: {
@@ -29,7 +30,7 @@ const SubmitPage = ({ params }: SubmitPageProps) => {
     getForm()
   }, [])
 
-  if (loading) return
+  if (loading) return <Loading />
 
   return (
     <>
