@@ -1,10 +1,12 @@
 'use client'
 
+import projectAtom from '@/atoms/selectedProject'
 import CreateFormBtn from '@/components/CreateFormBtn'
 import DashboardFormItem from '@/components/DashboardFormItem'
 import StatsCard from '@/components/StatsCard'
 import { useProjectHooks } from '@/hooks/project'
 import { Form, Project } from '@/types'
+import { useAtom } from 'jotai'
 
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
@@ -15,13 +17,42 @@ interface DetailsProps {
   params: { id: string }
 }
 
+interface FormWithChildren extends Form {
+  children: FormWithChildren[]
+}
+
+const buildTree = (forms: Form[]): FormWithChildren[] => {
+  const map = new Map<number, FormWithChildren>()
+  const roots: FormWithChildren[] = []
+
+  console.log(forms)
+
+  forms.forEach((form) => {
+    map.set(form.id as number, { ...form, children: [] })
+  })
+
+  forms.forEach((form) => {
+    if (form.master_form_id !== null) {
+      const parent = map.get(form.master_form_id as number)
+      parent?.children.push(map.get(form.id as number)!)
+    } else {
+      roots.push(map.get(form.id as number)!)
+    }
+  })
+
+  return roots
+}
+
 function ProjectDetailsPage({ params }: DetailsProps) {
   const { id } = params
   const router = useRouter()
 
-  const [forms, setForms] = useState<Form[]>([])
+  const [, setForms] = useState<Form[]>([])
+  const [tree, setTree] = useState<FormWithChildren[]>([])
   const [project, setProject] = useState<Project>()
   const [loading, setLoading] = useState<boolean>(true)
+
+  const [, setProjectId] = useAtom(projectAtom)
 
   const { getProjectForms, getProject, deleteProject } = useProjectHooks()
 
@@ -40,6 +71,9 @@ function ProjectDetailsPage({ params }: DetailsProps) {
       setForms(formsResponse)
       const projectResponse = await getProject(id)
       setProject(projectResponse)
+      const data = buildTree(formsResponse)
+      setTree(data)
+      setProjectId(projectResponse.id)
       setLoading(false)
     }
 
@@ -48,14 +82,14 @@ function ProjectDetailsPage({ params }: DetailsProps) {
 
   if (loading) return
 
-  if (forms) {
+  if (tree) {
     return (
       <>
         <div className="py-10 px-5 border-b border-muted">
           <div className="flex justify-between container">
             <div className="flex gap-6 items-center">
               <h1 className="text-4xl font-bold truncate">
-                {project?.attributes.name}
+                {project?.attributes?.name}
               </h1>
             </div>
 
@@ -93,21 +127,20 @@ function ProjectDetailsPage({ params }: DetailsProps) {
         <div className="flex flex-col justify-center items-start w-[80%] mx-auto">
           <div className="flex w-full">
             <h1 className=" font-bold text-2xl mr-auto">Forms</h1>
-            <CreateFormBtn />
+            <CreateFormBtn projectId={project?.id as number} />
           </div>
 
-          <ul>
-            {forms?.map((form) => (
-              <DashboardFormItem
-                key={form.id}
-                name={form.name || ''}
-                description={form.description || ''}
-                isCreator
-                onClick={() => {
-                  handleClickOnForm(form.id || 0)
-                }}
-              />
-            ))}
+          <ul className=" w-full">
+            <ul className="w-full">
+              {tree.map((form) => (
+                <DashboardFormItem
+                  key={form.id}
+                  form={form}
+                  projectId={project?.id as number}
+                  onClick={handleClickOnForm}
+                />
+              ))}
+            </ul>
           </ul>
         </div>
       </>

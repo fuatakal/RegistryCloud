@@ -5,6 +5,7 @@ import DateFieldFormElement from '@/components/form/DateField'
 import SelectFieldFormElement from '@/components/form/SelectField'
 import CheckBoxFieldFormElement from '@/components/form/CheckBoxField'
 import ConditionalSelectFieldElement from '@/components/form/ConditionalSelectField'
+import ComputationFieldFormElement from '@/components/form/ComputationField'
 
 export type ElementsType =
   | 'TextField'
@@ -14,6 +15,7 @@ export type ElementsType =
   | 'SelectField'
   | 'CheckBoxField'
   | 'ConditionalSelectField'
+  | 'ComputationField'
 
 export interface FormElementInstance {
   id: string
@@ -56,4 +58,5 @@ export const FormElements: FormElementsType = {
   SelectField: SelectFieldFormElement,
   CheckBoxField: CheckBoxFieldFormElement,
   ConditionalSelectField: ConditionalSelectFieldElement,
+  ComputationField: ComputationFieldFormElement,
 }
