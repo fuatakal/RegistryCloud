@@ -1,8 +1,15 @@
 'use client'
 
 import userAtom from '@/atoms/userInfoAtom'
+import DashboardFormItem from '@/components/DashboardFormItem'
+import ProjectItem from '@/components/ProjectItem'
+import { useFormHooks } from '@/hooks/form'
+import { useProjectHooks } from '@/hooks/project'
+import { AttendedForm, Project } from '@/types'
 import { useAtom } from 'jotai'
-import React from 'react'
+import { useRouter } from 'next/navigation'
+
+import React, { useEffect, useState } from 'react'
 
 interface ProfilePageProps {
   params: { id: string }
@@ -10,39 +17,87 @@ interface ProfilePageProps {
 
 export default function ProfilePage({ params }: ProfilePageProps) {
   const { id } = params
+  const router = useRouter()
   const [user] = useAtom(userAtom)
+
+  const [projects, setProjects] = useState<Project[]>([])
+  const { getProjects } = useProjectHooks()
+
+  const [attendedforms, setAttendedForms] = useState<AttendedForm[]>([])
+  const { getAttendedForms } = useFormHooks()
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      const response = await getProjects()
+      setProjects(response)
+
+      const data = await getAttendedForms()
+      setAttendedForms(data)
+    }
+    fetchProjects()
+  }, [])
+
+  const handleClickOnForm = (id: number) => {
+    router.push(`/form-details/${id}`)
+  }
 
   return (
     <div className="flex flex-col items-center ">
-      <div className="my-8 space-y-6 min-w-[50rem]">
+      <div className="my-8 space-y-6 min-w-[40rem]">
+        <div className="avatar w-full flex justify-center">
+          <div className="w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+            <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+          </div>
+        </div>
         <div className="flex space-x-4">
-          <div className="border rounded-lg shadow-lg p-6 w-[25rem]">
+          <div className="border rounded-lg shadow-lg p-4 w-[20rem]">
             <p className="font-bold text-black mb-2">First Name:</p>
-            <div className="text-blue-400 text-2xl font-bold mb-4">
+            <div className="text-blue-400 text-xl font-bold">
               {user?.first_name}
             </div>
           </div>
-          <div className="border rounded-lg shadow-lg p-6 w-[25rem]">
+          <div className="border rounded-lg shadow-lg p-4 w-[20rem]">
             <p className="font-bold text-black mb-2">Last Name:</p>
-            <div className="text-blue-400 text-2xl font-bold mb-4">
+            <div className="text-blue-400 text-xl font-bold">
               {user?.last_name}
             </div>
           </div>
         </div>
-        <div className="border rounded-lg shadow-lg p-6">
+        <div className="border rounded-lg shadow-lg p-4 w-[41rem]">
           <p className="font-bold text-black mb-2">Email:</p>
-          <div className="text-blue-400 text-2xl font-bold mb-4">
-            {user?.email}
+          <div className="text-blue-400 text-xl font-bold">{user?.email}</div>
+        </div>
+        {user?.is_staff ? (
+          <div className="border rounded-lg shadow-lg p-4 w-[41rem]">
+            <p className="font-bold text-black mb-2">Projects:</p>
+            <ul>
+              {projects.map((project) => (
+                <ProjectItem
+                  key={project.id}
+                  name={project.attributes.name}
+                  description={project.attributes.desc}
+                />
+              ))}
+            </ul>
           </div>
-        </div>
-        <div className="border rounded-lg shadow-lg p-6 ">
-          <p className="font-bold text-black mb-2">Created Forms:</p>
-          <p className="text-blue-400 text-2xl font-bold mb-4">something</p>
-        </div>
-        <div className="border rounded-lg shadow-lg p-6">
-          <p className="font-bold text-black mb-2">Attended Forms:</p>
-          <p className="text-blue-400 text-2xl font-bold mb-4">something</p>
-        </div>
+        ) : (
+          <div className="border rounded-lg shadow-lg p-4 w-[41rem]">
+            <p className="font-bold text-black mb-2">Attended Forms:</p>
+            <ul>
+              {attendedforms.map((form) => (
+                <DashboardFormItem
+                  key={form.form}
+                  name={form.formName || ''}
+                  description={form.formDescription || ''}
+                  isSubmitted={form.isSubmitted}
+                  onClick={() => {
+                    handleClickOnForm(form.form || 0)
+                  }}
+                />
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   )
