@@ -12,8 +12,10 @@ import { useAtom } from 'jotai'
 
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
-import { FaEdit, FaTrash } from 'react-icons/fa'
+import { FaTrash } from 'react-icons/fa'
 import { RiEditFill } from 'react-icons/ri'
+
+import EditProjectBtn from '@/components/EditProjectModal'
 
 interface DetailsProps {
   params: { id: string }
@@ -26,8 +28,6 @@ interface FormWithChildren extends Form {
 const buildTree = (forms: Form[]): FormWithChildren[] => {
   const map = new Map<number, FormWithChildren>()
   const roots: FormWithChildren[] = []
-
-  console.log(forms)
 
   forms.forEach((form) => {
     map.set(form.id as number, { ...form, children: [] })
@@ -98,14 +98,11 @@ function ProjectDetailsPage({ params }: DetailsProps) {
             </div>
 
             <div className="flex gap-6 justify-center items-center">
-              <button
-                className="btn btn-accent"
-                onClick={() => {
-                  router.push(`/form-builder/${id}`)
-                }}
-              >
-                Edit <FaEdit size={16} />
-              </button>
+              <EditProjectBtn
+                projectId={project?.id as number}
+                defaultDesc={project?.attributes?.desc as string}
+                defaultName={project?.attributes?.name as string}
+              />
 
               <button className="btn btn-error" onClick={handleDeleteProject}>
                 Delete <FaTrash size={16} />
