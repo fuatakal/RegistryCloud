@@ -33,10 +33,10 @@ const SubmitPage = ({ params }: SubmitPageProps) => {
   if (loading) return <Loading />
 
   return (
-    <>
+    <main className="flex justify-center items-center flex-col">
       <h1 className=" font-bold text-3xl self-center my-16">{form?.name}</h1>
       <FormSubmitComponent formId={formUrl} content={form?.questions || []} />
-    </>
+    </main>
   )
 }
 
