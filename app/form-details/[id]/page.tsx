@@ -4,6 +4,7 @@ import projectAtom from '@/atoms/selectedProject'
 import userAtom from '@/atoms/userInfoAtom'
 import CreateFormBtn from '@/components/CreateFormBtn'
 import DashboardFormItem from '@/components/DashboardFormItem'
+import GoBackButton from '@/components/GoBackButton'
 import Loading from '@/components/Loading'
 import StatsCard from '@/components/StatsCard'
 import { useFormHooks } from '@/hooks/form'
@@ -69,7 +70,8 @@ function DetailsPage({ params }: DetailsProps) {
     return (
       <>
         <div className="py-10 px-5 border-b border-muted">
-          <div className="flex justify-between container">
+          <GoBackButton />
+          <div className="flex justify-between container mt-2">
             <div className="flex gap-6 items-center">
               <h1 className="text-4xl font-bold truncate">{form.name}</h1>
               <button
@@ -91,12 +93,13 @@ function DetailsPage({ params }: DetailsProps) {
                   Edit <FaEdit size={16} />
                 </button>
               )}
-              {form.is_master && (
+              {form.is_master && user?.is_staff && (
                 <>
                   <CreateFormBtn
                     projectId={projectId as number}
                     master_form_id={form.id}
                   />
+
                   <DownloadTableExcel
                     filename={`${form.name}_answers`}
                     sheet="answers"
@@ -133,7 +136,7 @@ function DetailsPage({ params }: DetailsProps) {
                 role="tab"
                 className="tab"
                 aria-label="Answers"
-                defaultChecked
+                defaultChecked={!form.is_master}
               />
               <div role="tabpanel" className="tab-content p-10 min-w-[50rem]">
                 <div className="overflow-x-auto px-8">
@@ -175,6 +178,7 @@ function DetailsPage({ params }: DetailsProps) {
                 role="tab"
                 className="tab"
                 aria-label="Detail Forms"
+                defaultChecked={form.is_master}
               />
               <div role="tabpanel" className="tab-content p-10 min-w-[50rem]">
                 <h1 className=" text-xl font-bold ml-8">Detail Forms</h1>

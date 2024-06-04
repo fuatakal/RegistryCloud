@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
-import React from 'react'
+import React, { Suspense } from 'react'
 import { Roboto } from 'next/font/google'
 import './globals.css'
 import NextTopLoader from 'nextjs-toploader'
 import Navbar from '@/components/Navbar'
 import Alert from '@/components/Alert'
 import Footer from '@/components/Footer'
+import Loading from '@/components/Loading'
 
 const roboto = Roboto({ subsets: ['latin'], weight: ['400', '700'] })
 
@@ -22,11 +23,14 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="cupcake">
       <body className={`${roboto.className}`}>
-        <Alert />
-        <NextTopLoader />
-        <Navbar />
-        {children}
-        <Footer />
+        <Suspense fallback={<Loading />}>
+          <Alert />
+          <NextTopLoader />
+          <Navbar />
+          <main className='className="flex-grow"'>{children}</main>
+
+          <Footer />
+        </Suspense>
       </body>
     </html>
   )

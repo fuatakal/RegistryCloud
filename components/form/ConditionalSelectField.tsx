@@ -137,6 +137,13 @@ const FormComponent: React.FC<{
         className="select select-bordered w-full max-w-xs"
         value={selectedOption}
         onChange={(e) => setSelectedOption(e.target.value)}
+        onBlur={(e) => {
+          if (!submitValue) return
+          const valid = ConditionalSelectField.validate(element, e.target.value)
+          setError(!valid)
+          if (!valid && !selectedOptionObj?.showTextField) return
+          submitValue(parseInt(element.id), `${selectedOption}`)
+        }}
       >
         <option disabled value="">
           {placeHolder}

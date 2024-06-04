@@ -3,6 +3,7 @@
 import projectAtom from '@/atoms/selectedProject'
 import CreateFormBtn from '@/components/CreateFormBtn'
 import DashboardFormItem from '@/components/DashboardFormItem'
+import GoBackButton from '@/components/GoBackButton'
 import Loading from '@/components/Loading'
 import StatsCard from '@/components/StatsCard'
 import { useProjectHooks } from '@/hooks/project'
@@ -12,7 +13,7 @@ import { useAtom } from 'jotai'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { FaEdit, FaTrash } from 'react-icons/fa'
-import { LuView } from 'react-icons/lu'
+import { RiEditFill } from 'react-icons/ri'
 
 interface DetailsProps {
   params: { id: string }
@@ -48,10 +49,11 @@ function ProjectDetailsPage({ params }: DetailsProps) {
   const { id } = params
   const router = useRouter()
 
-  const [, setForms] = useState<Form[]>([])
   const [tree, setTree] = useState<FormWithChildren[]>([])
   const [project, setProject] = useState<Project>()
   const [loading, setLoading] = useState<boolean>(true)
+
+  const [formCount, setFormCount] = useState<number>(0)
 
   const [, setProjectId] = useAtom(projectAtom)
 
@@ -69,7 +71,7 @@ function ProjectDetailsPage({ params }: DetailsProps) {
   useEffect(() => {
     const fetchProject = async () => {
       const formsResponse = await getProjectForms(id)
-      setForms(formsResponse)
+      setFormCount(formsResponse.length)
       const projectResponse = await getProject(id)
       setProject(projectResponse)
       const data = buildTree(formsResponse)
@@ -87,7 +89,8 @@ function ProjectDetailsPage({ params }: DetailsProps) {
     return (
       <>
         <div className="py-10 px-5 border-b border-muted">
-          <div className="flex justify-between container">
+          <GoBackButton />
+          <div className="flex justify-between container mt-2">
             <div className="flex gap-6 items-center">
               <h1 className="text-4xl font-bold truncate">
                 {project?.attributes?.name}
@@ -117,10 +120,10 @@ function ProjectDetailsPage({ params }: DetailsProps) {
         </div>
         <div className="w-[400px] pt-8 gap-4 stats self-center mt-2  shadow">
           <StatsCard
-            title="Total Submits"
-            icon={<LuView size={48} />}
-            helperText="All time form submits"
-            value="0"
+            title="Number of Forms"
+            icon={<RiEditFill size={48} />}
+            helperText="All forms in this project"
+            value={formCount.toString()}
             loading={false}
             className="shadow-md shadow-blue-600"
             type={''}
