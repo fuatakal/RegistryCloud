@@ -25,7 +25,7 @@ const extraAttributes = {
     {
       label: 'Option 1',
       showTextField: false,
-      extraAtributes: {
+      extraAttributes: {
         label: 'Text field',
         variableName: 'text-field',
         placeHolder: 'Value here...',
@@ -35,7 +35,7 @@ const extraAttributes = {
     {
       label: 'Option 2',
       showTextField: true,
-      extraAtributes: {
+      extraAttributes: {
         label: 'Text field',
         variableName: 'text-field',
         placeHolder: 'Value here...',
@@ -158,8 +158,8 @@ const FormComponent: React.FC<{
       {selectedOptionObj?.showTextField && (
         <div className="flex flex-col gap-2 w-full">
           <label className={error ? 'text-red-500' : ''}>
-            {selectedOptionObj.extraAtributes.label}{' '}
-            {selectedOptionObj.extraAtributes.required && '*'}
+            {selectedOptionObj.extraAttributes.label}
+            {selectedOptionObj.extraAttributes.required && '*'}
           </label>
           <input
             className={
@@ -167,7 +167,7 @@ const FormComponent: React.FC<{
                 ? 'input input-bordered w-full border-red-500'
                 : 'input input-bordered w-full'
             }
-            placeholder={selectedOptionObj.extraAtributes.placeHolder}
+            placeholder={selectedOptionObj.extraAttributes.placeHolder}
             onChange={(e) => setValue(e.target.value)}
             onBlur={(e) => {
               if (!submitValue) return
@@ -295,19 +295,20 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
                   className="btn btn-outline btn-accent gap-2"
                   onClick={(e) => {
                     e.preventDefault() // avoid submit
-                    form.setValue(
-                      'options',
-                      field.value?.concat({
-                        label: 'New option',
-                        showTextField: false,
-                        extraAttributes: {
-                          label: 'Text field',
-                          variableName: 'text-field',
-                          placeHolder: 'Value here...',
-                          required: false,
-                        },
-                      })
-                    )
+                    const newOption = {
+                      label: 'New option',
+                      showTextField: false,
+                      extraAttributes: {
+                        label: 'Text field',
+                        variableName: 'text-field',
+                        placeHolder: 'Value here...',
+                        required: false,
+                      },
+                    }
+                    form.setValue('options', [
+                      ...(field.value || []),
+                      newOption,
+                    ])
                   }}
                 >
                   <AiOutlinePlus />
@@ -327,12 +328,15 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
                       value={option.label}
                       onChange={(e) => {
                         const newOptions = [...field.value]
-                        newOptions[index].label = e.target.value
-                        field.onChange(newOptions)
+                        newOptions[index] = {
+                          ...newOptions[index],
+                          label: e.target.value,
+                        }
+                        form.setValue('options', newOptions)
                       }}
                     />
                     <label className="flex items-center gap-2">
-                      <span className=" text-sm font-light">
+                      <span className="text-sm font-light">
                         Show Text Field
                       </span>
                       <input
@@ -340,8 +344,11 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
                         checked={option.showTextField}
                         onChange={(e) => {
                           const newOptions = [...field.value]
-                          newOptions[index].showTextField = e.target.checked
-                          field.onChange(newOptions)
+                          newOptions[index] = {
+                            ...newOptions[index],
+                            showTextField: e.target.checked,
+                          }
+                          form.setValue('options', newOptions)
                         }}
                       />
                     </label>
@@ -351,7 +358,7 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
                         e.preventDefault()
                         const newOptions = [...field.value]
                         newOptions.splice(index, 1)
-                        field.onChange(newOptions)
+                        form.setValue('options', newOptions)
                       }}
                     >
                       <AiOutlineClose />

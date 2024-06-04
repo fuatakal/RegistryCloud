@@ -101,6 +101,7 @@ function FormSubmitComponent({
       >
         {content.map((element) => {
           const FormElement = FormElements[element.type].formComponent
+          console.log(element)
           return (
             <FormElement
               key={element.id}
