@@ -3,7 +3,7 @@ import React from 'react'
 interface ProjectItemProps {
   name: string
   description: string
-  onClick: () => void
+  onClick?: () => void
 }
 
 const ProjectItem = ({ name, description, onClick }: ProjectItemProps) => {
