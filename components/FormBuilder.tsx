@@ -19,6 +19,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import Modal from './Modal'
 import { Controller, useForm } from 'react-hook-form'
 import Loading from './Loading'
+import GoBackButton from './GoBackButton'
 interface FormBuilderProps {
   id: string
 }
@@ -172,6 +173,7 @@ const FormBuilder = ({ id }: FormBuilderProps) => {
       </Modal>
       <main className="flex flex-col w-full">
         <div className="flex justify-between border-b-2 p-4 items-center gap-3">
+          <GoBackButton />
           <h2>
             Form:<span className=" font-bold"> {currentForm?.name}</span>
           </h2>
@@ -201,7 +203,7 @@ const FormBuilder = ({ id }: FormBuilderProps) => {
             <DeleteBtn formId={Number(id)} handleDelete={handleDeleteForm} />
           </div>
         </div>
-        <div className="flex w-full items-center justify-center relative h-[600px] bg-neutral-content">
+        <div className="flex w-full items-center justify-center relative min-h-[800px] bg-neutral-content">
           <Designer />
         </div>
       </main>

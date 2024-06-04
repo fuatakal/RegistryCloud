@@ -8,7 +8,11 @@ interface BuilderProps {
 async function BuilderPage({ params }: BuilderProps) {
   const { id } = params
 
-  return <FormBuilder id={id} />
+  return (
+    <>
+      <FormBuilder id={id} />
+    </>
+  )
 }
 
 export default BuilderPage
