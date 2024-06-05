@@ -81,6 +81,7 @@ export default function Home() {
             </div>
 
             <div className="divider divider-neutral mb-8" />
+            <h1 className=" text-lg font-bold mb-6"> New Forms</h1>
 
             <ul>
               {user?.is_staff
@@ -94,17 +95,40 @@ export default function Home() {
                       }}
                     />
                   ))
-                : attendedforms.map((form) => (
-                    <DashboardAttendedFormItem
-                      key={form.form}
-                      isSubmitted={form.isSubmitted}
-                      form={form}
-                      onClick={() => {
-                        handleClickOnForm(form.form || 0)
-                      }}
-                    />
-                  ))}
+                : attendedforms.map(
+                    (form) =>
+                      !form.isSubmitted && (
+                        <DashboardAttendedFormItem
+                          key={form.form}
+                          isSubmitted={form.isSubmitted}
+                          form={form}
+                          onClick={() => {
+                            handleClickOnForm(form.form || 0)
+                          }}
+                        />
+                      )
+                  )}
             </ul>
+            {!user?.is_staff && (
+              <>
+                <h1 className=" text-lg font-bold mb-6"> Submitted Forms</h1>
+                <ul>
+                  {attendedforms.map(
+                    (form) =>
+                      form.isSubmitted && (
+                        <DashboardAttendedFormItem
+                          key={form.form}
+                          isSubmitted={form.isSubmitted}
+                          form={form}
+                          onClick={() => {
+                            handleClickOnForm(form.form || 0)
+                          }}
+                        />
+                      )
+                  )}
+                </ul>
+              </>
+            )}
           </div>
         </div>
       )}
