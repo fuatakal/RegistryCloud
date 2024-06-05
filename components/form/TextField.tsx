@@ -20,6 +20,7 @@ const extraAttributes = {
   variableName: 'text-field',
   required: false,
   placeHolder: 'Value here...',
+  maxLength: 50,
 }
 
 const propertiesSchema = yup.object().shape({
@@ -27,6 +28,7 @@ const propertiesSchema = yup.object().shape({
   variableName: yup.string().min(3).max(24),
   required: yup.boolean().default(false),
   placeHolder: yup.string().max(50),
+  maxLength: yup.number().max(100),
 })
 
 type propestiesSchemaProps = yup.InferType<typeof propertiesSchema>
@@ -78,7 +80,7 @@ const FormComponent: React.FC<{
     }
   }, [isInvalid])
 
-  const { label, required, placeHolder } = element.extraAttributes
+  const { label, required, placeHolder, maxLength } = element.extraAttributes
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     if (!submitValue) return
@@ -109,6 +111,7 @@ const FormComponent: React.FC<{
         onChange={(e) => setValue(e.target.value)}
         onBlur={handleBlur}
         value={value}
+        maxLength={maxLength}
       />
       {error && <span className="text-red-500">{errorMessage}</span>}
     </div>
@@ -127,6 +130,7 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
       variableName: element.extraAttributes.variableName,
       placeHolder: element.extraAttributes.placeHolder,
       required: element.extraAttributes.required,
+      maxLength: element.extraAttributes.maxLength,
     },
   })
 
@@ -143,6 +147,7 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
         variableName: values.variableName,
         placeHolder: values.placeHolder,
         required: values.required,
+        maxLength: values.maxLength,
       },
     })
   }
@@ -150,7 +155,7 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
   const { label } = element.extraAttributes
   return (
     <div className="flex flex-col w-full mt-2">
-      <p className=" self-center font-bold text-lg">Properties of {label}</p>
+      <p className="self-center font-bold text-lg">Properties of {label}</p>
       <form
         onBlur={form.handleSubmit(applyChanges)}
         onSubmit={(e) => {
@@ -205,6 +210,24 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
                   if (e.key === 'Enter') e.currentTarget.blur()
                 }}
               />
+              <span>{field.value}</span>
+            </div>
+          )}
+        />
+        <Controller
+          control={form.control}
+          name="maxLength"
+          render={({ field }) => (
+            <div className="flex flex-col gap-1 my-2">
+              <label>Max text length</label>
+              <input
+                {...field}
+                type="range"
+                min="0"
+                max="100"
+                className="range"
+              />
+              <span>{field.value}</span>
             </div>
           )}
         />
@@ -250,7 +273,6 @@ const TextFieldFormElement: FormElement = {
     if (element.extraAttributes.required) {
       return currentValue.trim().length > 0
     }
-
     return true
   },
 }

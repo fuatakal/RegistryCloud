@@ -20,6 +20,8 @@ const extraAttributes = {
   variableName: 'number-field',
   required: false,
   placeHolder: 'Value here...',
+  max: 10000,
+  min: 0,
 }
 
 const propertiesSchema = yup.object().shape({
@@ -27,6 +29,8 @@ const propertiesSchema = yup.object().shape({
   variableName: yup.string().min(3).max(24),
   required: yup.boolean().default(false),
   placeHolder: yup.string().max(50),
+  max: yup.number(),
+  min: yup.number(),
 })
 
 type propestiesSchemaProps = yup.InferType<typeof propertiesSchema>
@@ -74,7 +78,7 @@ const FormComponent: React.FC<{
     setError(isInvalid === true)
   }, [isInvalid])
 
-  const { label, required, placeHolder } = element.extraAttributes
+  const { label, required, placeHolder, max, min } = element.extraAttributes
   return (
     <div className="flex flex-col gap-2 w-full">
       <label className={error ? 'text-red-500' : ''}>
@@ -89,6 +93,8 @@ const FormComponent: React.FC<{
         }
         placeholder={placeHolder}
         type="text"
+        max={max}
+        min={min}
         onChange={(e) => setValue(e.target.value)}
         onBlur={(e) => {
           if (!submitValue) return
@@ -115,6 +121,8 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
       variableName: element.extraAttributes.variableName,
       placeHolder: element.extraAttributes.placeHolder,
       required: element.extraAttributes.required,
+      max: element.extraAttributes.max,
+      min: element.extraAttributes.min,
     },
   })
 
@@ -131,6 +139,8 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
         variableName: values.variableName,
         placeHolder: values.placeHolder,
         required: values.required,
+        max: values.max,
+        min: values.min,
       },
     })
   }
@@ -189,6 +199,54 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
                 type="number"
                 className="input input-bordered w-full max-w-xs"
                 {...field}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') e.currentTarget.blur()
+                }}
+              />
+            </div>
+          )}
+        />
+        <Controller
+          control={form.control}
+          name="max"
+          render={({ field }) => (
+            <div className="flex flex-col gap-1 my-2">
+              <label>Max value</label>
+              <input
+                type="number"
+                className="input input-bordered w-full max-w-xs"
+                {...field}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') e.currentTarget.blur()
+                }}
+                onBlur={() => {
+                  const minValue = form.watch('min') ?? 0
+                  if ((field.value ?? 0) < minValue) {
+                    form.setValue('max', Number(minValue) + 1)
+                  }
+                }}
+                min={form.watch('min') ?? 0}
+              />
+            </div>
+          )}
+        />
+        <Controller
+          control={form.control}
+          name="min"
+          render={({ field }) => (
+            <div className="flex flex-col gap-1 my-2">
+              <label>Min value</label>
+              <input
+                type="number"
+                className="input input-bordered w-full max-w-xs"
+                {...field}
+                onBlur={() => {
+                  const maxValue = form.watch('max') ?? 0
+                  if ((field.value ?? 0) > maxValue) {
+                    form.setValue('min', Number(maxValue) - 1)
+                  }
+                }}
+                min={form.watch('min') ?? 0}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') e.currentTarget.blur()
                 }}
