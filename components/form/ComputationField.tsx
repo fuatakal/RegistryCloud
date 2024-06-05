@@ -92,7 +92,9 @@ const FormComponent: React.FC<{
     const valid = validate(element, values.join(','))
     setError(!valid)
     if (!valid) return
-    submitValue(parseInt(element.id), values.join(','))
+    const result = calculateResult()
+    const submissionValue = `${result.toFixed(2)}`
+    submitValue(parseInt(element.id), submissionValue)
   }
 
   const calculateResult = () => {
@@ -103,7 +105,7 @@ const FormComponent: React.FC<{
       const [weight, height] = values
       return (weight / (height * height)) * 10000
     }
-    return ''
+    return 0
   }
 
   return (

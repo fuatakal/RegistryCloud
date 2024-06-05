@@ -31,7 +31,6 @@ function FormSubmitComponent({
       const actualValue =
         formValues.current.find((item) => item.question === Number(field.id))
           ?.answer || ''
-      console.log(actualValue)
       const valid = FormElements[field.type].validate(field, actualValue)
 
       if (!valid) {
@@ -101,7 +100,6 @@ function FormSubmitComponent({
       >
         {content.map((element) => {
           const FormElement = FormElements[element.type].formComponent
-          console.log(element)
           return (
             <FormElement
               key={element.id}
