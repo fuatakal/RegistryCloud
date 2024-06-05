@@ -94,13 +94,18 @@ const FormBuilder = ({ id }: FormBuilderProps) => {
     const getForm = async () => {
       console.log(id)
       const response = await getFormById(Number(id))
-      console.log(response)
-      setForm(response.data)
+      setForm(response)
       setFormElements(response.questions || [])
       setLoading(false)
     }
     getForm()
   }, [])
+
+  useEffect(() => {
+    form.reset({
+      design: JSON.stringify(formElements),
+    })
+  }, [form, importModalIsOpen])
 
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
