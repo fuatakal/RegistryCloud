@@ -26,10 +26,11 @@ interface FormBuilderProps {
 
 const FormBuilder = ({ id }: FormBuilderProps) => {
   const router = useRouter()
+
   const [formElements, setFormElements] = useAtom(formElementsAtom)
   const [, setAlert] = useAtom(alertStateAtom)
-
   const [currentForm, setForm] = useAtom(currentFormAtom)
+
   const [loading, setLoading] = useState<boolean>(true)
   const { editForm, getFormById, deleteForm } = useFormHooks()
 

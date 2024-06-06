@@ -10,15 +10,7 @@ interface StatsCard {
   type: string
 }
 
-const StatsCard = ({
-  title,
-  icon,
-  value,
-  loading,
-  className,
-  type,
-  helperText,
-}: StatsCard) => {
+const StatsCard = ({ title, icon, value, helperText }: StatsCard) => {
   return (
     <div className="stat">
       <div className="stat-figure text-secondary">{icon}</div>

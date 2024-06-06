@@ -4,17 +4,17 @@ import { useFormHooks } from '@/hooks/form'
 
 import React, { useEffect, useState } from 'react'
 import { Form } from '@/types/index'
-import FormSubmitComponent from '@/components/FormSubmitComponent'
 import Loading from '@/components/Loading'
+import FormPreviewComponent from '@/components/FormPreviewComponent'
 import GoBackButton from '@/components/GoBackButton'
 
-interface SubmitPageProps {
+interface PreviewPageProps {
   params: {
     formUrl: string
   }
 }
 
-const SubmitPage = ({ params }: SubmitPageProps) => {
+const PreviewPage = ({ params }: PreviewPageProps) => {
   const { formUrl } = params
 
   const [form, setForm] = useState<Form>()
@@ -23,6 +23,7 @@ const SubmitPage = ({ params }: SubmitPageProps) => {
   const { getFormById } = useFormHooks()
 
   useEffect(() => {
+    console.log('aaaaa')
     const getForm = async () => {
       const response = await getFormById(Number(formUrl))
       setForm(response)
@@ -38,10 +39,11 @@ const SubmitPage = ({ params }: SubmitPageProps) => {
       <div className=" self-start mt-2 ml-2">
         <GoBackButton />
       </div>
+
       <h1 className=" font-bold text-3xl self-center my-16">{form?.name}</h1>
-      <FormSubmitComponent formId={formUrl} content={form?.questions || []} />
+      <FormPreviewComponent content={form?.questions || []} />
     </main>
   )
 }
 
-export default SubmitPage
+export default PreviewPage

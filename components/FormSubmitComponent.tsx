@@ -8,6 +8,7 @@ import { useAtom } from 'jotai'
 import React, { useCallback, useRef, useState, useTransition } from 'react'
 import { BiSend } from 'react-icons/bi'
 import { ImSpinner2 } from 'react-icons/im'
+
 function FormSubmitComponent({
   formId,
   content,
@@ -27,10 +28,12 @@ function FormSubmitComponent({
   const { submitForm } = useFormHooks()
 
   const validateForm = useCallback(() => {
+    formErrors.current = {}
     for (const field of content) {
       const actualValue =
         formValues.current.find((item) => item.question === Number(field.id))
           ?.answer || ''
+      console.log(actualValue)
       const valid = FormElements[field.type].validate(field, actualValue)
 
       if (!valid) {
@@ -58,8 +61,24 @@ function FormSubmitComponent({
 
   const handleSubmitForm = async () => {
     formErrors.current = {}
+
+    // Ensure all questions have an answer, defaulting to empty string if not answered
+    content.forEach((field) => {
+      if (
+        !formValues.current.find((item) => item.question === Number(field.id))
+      ) {
+        formValues.current.push({ question: Number(field.id), answer: '' })
+      }
+    })
+
     const validForm = validateForm()
     if (!validForm) {
+      setAlert({
+        isVisible: true,
+        message:
+          'There are errors in the form. Please fix them before submitting.',
+        variant: 'error',
+      })
       setRenderKey(new Date().getTime())
       return
     }
@@ -71,7 +90,7 @@ function FormSubmitComponent({
       setSubmitted(true)
       setAlert({
         isVisible: true,
-        message: 'Succes',
+        message: 'Success',
         variant: 'success',
       })
     } catch (error) {
@@ -93,7 +112,7 @@ function FormSubmitComponent({
   }
 
   return (
-    <div className="flex justify-center w-full h-full items-center p-8 ">
+    <div className="flex justify-center w-full h-full items-center p-8">
       <div
         key={renderKey}
         className="max-w-[820px] flex flex-col gap-4 flex-grow bg-background w-full p-8 overflow-y-auto border shadow-xl rounded"

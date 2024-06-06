@@ -125,7 +125,10 @@ const PublishBtn = ({ formId }: PublishBtnProps) => {
               render={({ field }) => (
                 <div>
                   {filteredUsers
-                    .filter((user) => user.email !== currentUser.email)
+                    .filter(
+                      (user) =>
+                        user.email !== currentUser.email && !user.is_staff
+                    )
                     .map((user, index) => (
                       <label key={index} className="label cursor-pointer">
                         <span className="label-text">{user.email}</span>

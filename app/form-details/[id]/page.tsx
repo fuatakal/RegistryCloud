@@ -1,6 +1,7 @@
 'use client'
 
-import projectAtom from '@/atoms/selectedProject'
+import currentFormAtom from '@/atoms/currentFormAtom'
+import projectIdAtom from '@/atoms/selectedProject'
 import userAtom from '@/atoms/userInfoAtom'
 import CreateFormBtn from '@/components/CreateFormBtn'
 import DashboardFormItem from '@/components/DashboardFormItem'
@@ -8,7 +9,7 @@ import GoBackButton from '@/components/GoBackButton'
 import Loading from '@/components/Loading'
 import StatsCard from '@/components/StatsCard'
 import { useFormHooks } from '@/hooks/form'
-import { Form, FormSubmit } from '@/types'
+import { AttendedForm, Form, FormSubmit } from '@/types'
 import { useAtom } from 'jotai'
 
 import { useRouter } from 'next/navigation'
@@ -28,17 +29,23 @@ function DetailsPage({ params }: DetailsProps) {
   const tableRef = useRef(null)
 
   const [form, setForm] = useState<Form>()
+  const [attendedForms, setAttendedForms] = useState<AttendedForm[]>()
   const [detailForms, setDetailForms] = useState<Form[]>([])
   const [submits, setSubmits] = useState<FormSubmit[]>([])
   const [loading, setLoading] = useState<boolean>(true)
-
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
   const [user] = useAtom(userAtom)
-  const [projectId] = useAtom(projectAtom)
+  const [projectId] = useAtom(projectIdAtom)
+  const [, setCurrentForm] = useAtom(currentFormAtom)
 
-  const { getFormById, getFormAnswers, getFormsOfMaster } = useFormHooks()
+  const { getFormById, getFormAnswers, getFormsOfMaster, getAttendedForms } =
+    useFormHooks()
 
   const visit = (id: number) => {
     router.push(`/submit/${id.toString()}`)
+  }
+  const preview = (id: number) => {
+    router.push(`/preview/${id.toString()}`)
   }
 
   const onClickForm = (id: number) => {
@@ -49,8 +56,11 @@ function DetailsPage({ params }: DetailsProps) {
     const getForm = async () => {
       const response1 = await getFormById(Number(id))
       setForm(response1)
+      setCurrentForm(response1)
       const response2 = await getFormsOfMaster(response1.id)
       setDetailForms(response2)
+      const response3 = await getAttendedForms()
+      setAttendedForms(response3)
     }
 
     const getAnswers = async () => {
@@ -64,6 +74,12 @@ function DetailsPage({ params }: DetailsProps) {
     console.log(form)
   }, [])
 
+  useEffect(() => {
+    const foundForm = attendedForms?.find((form) => form.form === Number(id))
+    setIsSubmitted(foundForm ? foundForm.isSubmitted : false)
+    console.log(foundForm)
+  }, [attendedForms])
+
   if (loading) return <Loading />
 
   if (form) {
@@ -74,12 +90,31 @@ function DetailsPage({ params }: DetailsProps) {
           <div className="flex justify-between container mt-2">
             <div className="flex gap-6 items-center">
               <h1 className="text-4xl font-bold truncate">{form.name}</h1>
-              <button
-                className="btn btn-primary btn-outline"
-                onClick={() => visit(form.id as number)}
-              >
-                Visit <FaArrowAltCircleRight size={16} />
-              </button>
+              {user?.is_staff && (
+                <button
+                  className="btn btn-primary btn-outline"
+                  onClick={() => preview(form.id as number)}
+                >
+                  Preview <FaArrowAltCircleRight size={16} />
+                </button>
+              )}
+              {!user?.is_staff && !isSubmitted && (
+                <button
+                  className="btn btn-primary btn-outline"
+                  onClick={() => visit(form.id as number)}
+                >
+                  Visit <FaArrowAltCircleRight size={16} />
+                </button>
+              )}
+              {!user?.is_staff && isSubmitted && (
+                <button
+                  className="btn btn-primary btn-outline"
+                  disabled
+                  onClick={() => visit(form.id as number)}
+                >
+                  Submitted
+                </button>
+              )}
             </div>
 
             <div className="flex gap-6 justify-center items-center">
@@ -160,7 +195,9 @@ function DetailsPage({ params }: DetailsProps) {
                         <tr key={index} className="hover">
                           <th>{item.deliveryman_email}</th>
                           {item.answers.map((field) => (
-                            <td key={`${item.deliveryman}`}>{field.answer}</td>
+                            <td key={`${item.deliveryman}`}>
+                              {field.answer || ' '}
+                            </td>
                           ))}
                         </tr>
                       ))}

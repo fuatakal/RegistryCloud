@@ -79,6 +79,30 @@ const FormComponent: React.FC<{
   }, [isInvalid])
 
   const { label, required, placeHolder, max, min } = element.extraAttributes
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const val = e.target.value
+
+    if (!submitValue) return
+
+    const valid = NumberFieldFormElement.validate(element, val)
+    setError(!valid)
+    submitValue(parseInt(element.id), val)
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value
+    const numVal = parseFloat(val)
+
+    if (isNaN(numVal) || numVal < min || numVal > max) {
+      setError(true)
+    } else {
+      setError(false)
+    }
+
+    setValue(val)
+  }
+
   return (
     <div className="flex flex-col gap-2 w-full">
       <label className={error ? 'text-red-500' : ''}>
@@ -92,19 +116,18 @@ const FormComponent: React.FC<{
             : 'input input-bordered w-full'
         }
         placeholder={placeHolder}
-        type="text"
+        type="number"
         max={max}
         min={min}
-        onChange={(e) => setValue(e.target.value)}
-        onBlur={(e) => {
-          if (!submitValue) return
-          const valid = NumberFieldFormElement.validate(element, e.target.value)
-          setError(!valid)
-          if (!valid) return
-          submitValue(parseInt(element.id), e.target.value)
-        }}
+        onChange={handleChange}
+        onBlur={handleBlur}
         value={value}
       />
+      {error && (
+        <p className="text-red-500">
+          Value must be between {min} and {max}
+        </p>
+      )}
     </div>
   )
 }
@@ -295,6 +318,13 @@ const NumberFieldFormElement: FormElement = {
     const element = formElement as CustomInstance
     if (element.extraAttributes.required) {
       return currentValue.length > 0
+    }
+    if (
+      isNaN(Number(currentValue)) ||
+      Number(currentValue) < element.extraAttributes.min ||
+      Number(currentValue) > element.extraAttributes.max
+    ) {
+      return false
     }
 
     return true

@@ -22,12 +22,14 @@ export interface Attender {
 
 export interface Project {
   id?: number
+  creator?: number
   attributes?: {
     name: string
     desc: string
   }
   forms?: number[]
   executives?: number[]
+  editors?: number[]
 }
 
 export interface Form {

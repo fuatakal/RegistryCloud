@@ -14,7 +14,7 @@ import { useFormHooks } from '@/hooks/form'
 import Loading from '@/components/Loading'
 import DashboardAttendedFormItem from '@/components/DashboardAttendedFormItem'
 
-export default function Home() {
+export default function Dashboard() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [projects, setProjects] = useState<Project[]>([])

@@ -8,7 +8,6 @@ import {
 import React, { useEffect, useState } from 'react'
 import * as yup from 'yup'
 import { Controller, useForm } from 'react-hook-form'
-
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useFormActions } from '@/hooks/formActions'
 import { BsFillCalendarDateFill } from 'react-icons/bs'
@@ -46,7 +45,7 @@ const DesignerComponent: React.FC<DesignerComponentProps> = ({
   const { label, required } = element.extraAttributes
   return (
     <div className="flex flex-col gap-2 w-full">
-      <label className=" font-semibold">
+      <label className="font-semibold">
         {label}
         {required && '*'}
       </label>
@@ -65,8 +64,20 @@ const FormComponent: React.FC<{
 }> = ({ elementInstance, submitValue, isInvalid, defaultValue }) => {
   const element = elementInstance as CustomInstance
 
+  const formatDate = (date: Date) => {
+    const day = String(date.getDate()).padStart(2, '0')
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}.${month}.${year}`
+  }
+
+  const parseDate = (dateString: string) => {
+    const [day, month, year] = dateString.split('.')
+    return new Date(Number(year), Number(month) - 1, Number(day))
+  }
+
   const [date, setDate] = useState<Date | undefined>(
-    defaultValue ? new Date(defaultValue) : undefined
+    defaultValue ? parseDate(defaultValue) : undefined
   )
   const [error, setError] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
@@ -99,10 +110,14 @@ const FormComponent: React.FC<{
           value={date ? date.toISOString().split('T')[0] : ''}
           onChange={(event) => {
             const selectedDate = new Date(event.target.value)
+            if (isNaN(selectedDate.getTime())) {
+              setDate(undefined)
+              return
+            }
             setDate(selectedDate)
 
             if (!submitValue) return
-            const value = selectedDate.toISOString()
+            const value = formatDate(selectedDate)
             const valid = DateFieldFormElement.validate(element, value)
             setError(!valid)
             submitValue(Number(element.id), value)
@@ -121,9 +136,10 @@ const FormComponent: React.FC<{
         </div>
       </Modal>
       <input
-        type="date"
+        type="text"
         className="input input-bordered border-accent disabled"
-        value={date ? date.toISOString().split('T')[0] : ''}
+        value={date ? formatDate(date) : ''}
+        readOnly
       />
     </div>
   )
@@ -162,7 +178,7 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
   const { label } = element.extraAttributes
   return (
     <div className="flex flex-col w-full mt-2">
-      <p className=" self-center font-bold text-lg">Properties of {label}</p>
+      <p className="self-center font-bold text-lg">Properties of {label}</p>
       <form
         onBlur={form.handleSubmit(applyChanges)}
         onSubmit={(e) => {
