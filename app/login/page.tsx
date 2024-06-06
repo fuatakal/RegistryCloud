@@ -78,7 +78,16 @@ export default function Page() {
 
   return (
     <main className="h-screen flex items-center justify-center ">
-      <div className="container card-body max-w-2xl mx-auto mt-12 shadow-lg rounded-3xl p-6 bg-base-200">
+      <div className="absolute inset-0 z-0">
+        <img
+          className="object-cover w-full h-full "
+          src="/cloud.jpeg"
+          alt="Background"
+        />
+        <div className="absolute inset-0 bg-black opacity-50"></div>
+      </div>
+
+      <div className="container card-body max-w-2xl mx-auto mt-12 shadow-lg rounded-3xl p-6 bg-base-200 z-10">
         <form onSubmit={handleLogIn}>
           <div className="flex flex-col flex-wrap">
             <span className="text-3xl font-bold self-center my-4 p-2">
@@ -117,7 +126,7 @@ export default function Page() {
                   router.push('/register')
                 }}
               >
-                Sign in
+                Sign up
               </button>
             </span>
             <span className="rounded-lg p-2 font-bold text-sm mt-12 self-center">

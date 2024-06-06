@@ -22,3 +22,9 @@
     transform: translateX(0);
   }
 }
+
+.bg-pattern {
+  background-image: url('/cloud.jpeg');
+  background-repeat: repeat;
+  background-size: cover;
+}

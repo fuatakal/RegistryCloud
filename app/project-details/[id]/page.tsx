@@ -19,6 +19,7 @@ import EditProjectBtn from '@/components/EditProjectModal'
 import AddExecutiveBtn from '@/components/AddExecutives'
 import currentProjectAtom from '@/atoms/currentProjectAtom'
 import userAtom from '@/atoms/userInfoAtom'
+import executiveAtom from '@/atoms/executiveAtom'
 
 interface DetailsProps {
   params: { id: string }
@@ -61,6 +62,7 @@ function ProjectDetailsPage({ params }: DetailsProps) {
   const [, setProjectId] = useAtom(projectIdAtom)
   const [, setCurrentProject] = useAtom(currentProjectAtom)
   const [user] = useAtom(userAtom)
+  const [, setExecutive] = useAtom(executiveAtom)
 
   const { getProjectForms, getProject, deleteProject } = useProjectHooks()
 
@@ -69,8 +71,9 @@ function ProjectDetailsPage({ params }: DetailsProps) {
       user?.id === project?.creator ||
       project?.editors?.includes(user?.id as number)
     ) {
-      router.push(`/form-details/${id}`)
+      setExecutive('editor')
     }
+    router.push(`/form-details/${id}`)
   }
 
   const handleDeleteProject = () => {
