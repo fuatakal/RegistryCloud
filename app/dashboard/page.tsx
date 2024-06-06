@@ -69,8 +69,8 @@ export default function Dashboard() {
         <Loading />
       ) : (
         // Content after token check
-        <div className="min-h-screen flex p-12 justify-center">
-          <div className="container flex flex-col gap-4 p-12 rounded-xl bg-base-200 w-[75rem]">
+        <div className="min-h-screen flex p-12 justify-center bg-pattern">
+          <div className="container flex flex-col gap-4 p-12 rounded-xl bg-base-200 w-[75rem] ">
             <div className="flex flex-row items-center w-full">
               <h1 className=" text-xl font-bold my-2 ml-4">
                 {user?.is_staff ? 'My Projects' : 'Form invitations'}

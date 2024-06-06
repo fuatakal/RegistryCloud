@@ -4,7 +4,7 @@ import Image from 'next/image'
 
 const Footer = () => {
   return (
-    <footer className="footer p-10 bg-neutral text-neutral-content mt-20 z-10">
+    <footer className="footer p-10 bg-neutral text-neutral-content mt-10 z-10">
       <aside>
         <Image
           src="/cloud.svg"

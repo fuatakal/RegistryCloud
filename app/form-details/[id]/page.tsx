@@ -1,6 +1,7 @@
 'use client'
 
 import currentFormAtom from '@/atoms/currentFormAtom'
+import executiveAtom from '@/atoms/executiveAtom'
 import projectIdAtom from '@/atoms/selectedProject'
 import userAtom from '@/atoms/userInfoAtom'
 import CreateFormBtn from '@/components/CreateFormBtn'
@@ -37,6 +38,7 @@ function DetailsPage({ params }: DetailsProps) {
   const [user] = useAtom(userAtom)
   const [projectId] = useAtom(projectIdAtom)
   const [, setCurrentForm] = useAtom(currentFormAtom)
+  const [executive] = useAtom(executiveAtom)
 
   const { getFormById, getFormAnswers, getFormsOfMaster, getAttendedForms } =
     useFormHooks()
@@ -118,7 +120,7 @@ function DetailsPage({ params }: DetailsProps) {
             </div>
 
             <div className="flex gap-6 justify-center items-center">
-              {user?.is_staff && (
+              {user?.is_staff && executive && (
                 <button
                   className="btn btn-accent"
                   onClick={() => {
@@ -130,10 +132,12 @@ function DetailsPage({ params }: DetailsProps) {
               )}
               {form.is_master && user?.is_staff && (
                 <>
-                  <CreateFormBtn
-                    projectId={projectId as number}
-                    master_form_id={form.id}
-                  />
+                  {executive && (
+                    <CreateFormBtn
+                      projectId={projectId as number}
+                      master_form_id={form.id}
+                    />
+                  )}
 
                   <DownloadTableExcel
                     filename={`${form.name}_answers`}

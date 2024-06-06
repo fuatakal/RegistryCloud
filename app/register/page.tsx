@@ -46,7 +46,16 @@ export default function Register() {
 
   return (
     <main className="h-screen flex items-center justify-center">
-      <div className="container max-w-2xl mx-auto mt-12 rounded-3xl bg-base-200 p-6">
+      <div className="absolute inset-0 z-0">
+        <img
+          className="object-cover w-full h-full "
+          src="/cloud.jpeg"
+          alt="Background"
+        />
+        <div className="absolute inset-0 bg-black opacity-50"></div>
+      </div>
+
+      <div className="container max-w-2xl mx-auto mt-12 rounded-3xl bg-base-200 p-6 z-10">
         <form onSubmit={handleRegister}>
           <div className="flex flex-col flex-wrap">
             <span className="text-3xl font-bold self-center my-4 p-2">

@@ -15,7 +15,12 @@ function Navbar() {
   const router = useRouter()
   const pathname = usePathname()
 
-  if (pathname.includes('/login') || pathname.includes('/register')) return null
+  if (
+    pathname === '/' ||
+    pathname.includes('/login') ||
+    pathname.includes('/register')
+  )
+    return null
 
   const [user] = useAtom(userAtom)
   const [navbarLinks] = useAtom(navLinksAtom)
@@ -26,7 +31,7 @@ function Navbar() {
   }
 
   return (
-    <div className="navbar bg-base-300">
+    <div className="navbar bg-base-300 z-50">
       <div className="flex-1">
         <Image
           src="/cloud.svg"

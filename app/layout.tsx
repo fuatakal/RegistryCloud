@@ -27,7 +27,7 @@ export default function RootLayout({
           <Alert />
           <NextTopLoader />
           <Navbar />
-          <main className='className="flex-grow"'>{children}</main>
+          <main>{children}</main>
 
           <Footer />
         </Suspense>
