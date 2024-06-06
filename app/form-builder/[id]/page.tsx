@@ -1,3 +1,5 @@
+'use client'
+
 import FormBuilder from '@/components/FormBuilder'
 import React from 'react'
 

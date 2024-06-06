@@ -157,6 +157,7 @@ export const useFormHooks = () => {
 
   const submitForm = async (answers: SubmitFormProps[], formId: string) => {
     if (!token) throw new Error('No token available')
+    console.log(answers)
     try {
       await fetch(`http://localhost:8000/forms/fill/${formId}`, {
         method: 'POST',

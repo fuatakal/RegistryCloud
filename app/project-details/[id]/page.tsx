@@ -1,6 +1,6 @@
 'use client'
 
-import projectAtom from '@/atoms/selectedProject'
+import projectIdAtom from '@/atoms/selectedProject'
 import CreateFormBtn from '@/components/CreateFormBtn'
 import DashboardFormItem from '@/components/DashboardFormItem'
 import GoBackButton from '@/components/GoBackButton'
@@ -16,6 +16,9 @@ import { FaTrash } from 'react-icons/fa'
 import { RiEditFill } from 'react-icons/ri'
 
 import EditProjectBtn from '@/components/EditProjectModal'
+import AddExecutiveBtn from '@/components/AddExecutives'
+import currentProjectAtom from '@/atoms/currentProjectAtom'
+import userAtom from '@/atoms/userInfoAtom'
 
 interface DetailsProps {
   params: { id: string }
@@ -55,12 +58,19 @@ function ProjectDetailsPage({ params }: DetailsProps) {
 
   const [formCount, setFormCount] = useState<number>(0)
 
-  const [, setProjectId] = useAtom(projectAtom)
+  const [, setProjectId] = useAtom(projectIdAtom)
+  const [, setCurrentProject] = useAtom(currentProjectAtom)
+  const [user] = useAtom(userAtom)
 
   const { getProjectForms, getProject, deleteProject } = useProjectHooks()
 
   const handleClickOnForm = (id: number) => {
-    router.push(`/form-details/${id}`)
+    if (
+      user?.id === project?.creator ||
+      project?.editors?.includes(user?.id as number)
+    ) {
+      router.push(`/form-details/${id}`)
+    }
   }
 
   const handleDeleteProject = () => {
@@ -73,7 +83,10 @@ function ProjectDetailsPage({ params }: DetailsProps) {
       const formsResponse = await getProjectForms(id)
       setFormCount(formsResponse.length)
       const projectResponse = await getProject(id)
+      setCurrentProject(projectResponse)
       setProject(projectResponse)
+      console.log(projectResponse)
+      console.log(user)
       const data = buildTree(formsResponse)
       setTree(data)
       setProjectId(projectResponse.id)
@@ -98,21 +111,28 @@ function ProjectDetailsPage({ params }: DetailsProps) {
             </div>
 
             <div className="flex gap-6 justify-center items-center">
-              <EditProjectBtn
-                projectId={project?.id as number}
-                defaultDesc={project?.attributes?.desc as string}
-                defaultName={project?.attributes?.name as string}
-              />
-
-              <button className="btn btn-error" onClick={handleDeleteProject}>
-                Delete <FaTrash size={16} />
-              </button>
+              {user?.id === project?.creator && (
+                <>
+                  <AddExecutiveBtn projectId={project?.id as number} />
+                  <EditProjectBtn
+                    projectId={project?.id as number}
+                    defaultDesc={project?.attributes?.desc as string}
+                    defaultName={project?.attributes?.name as string}
+                  />
+                  <button
+                    className="btn btn-error"
+                    onClick={handleDeleteProject}
+                  >
+                    Delete <FaTrash size={16} />
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
         <div className="py-5 px-10">
           <div className="container flex gap-2 items-center justify-between">
-            <p>{project?.attributes?.name}</p>
+            <p>{project?.attributes?.desc}</p>
           </div>
         </div>
         <div className="w-[400px] pt-8 gap-4 stats self-center mt-2  shadow">
@@ -130,7 +150,10 @@ function ProjectDetailsPage({ params }: DetailsProps) {
         <div className="flex flex-col justify-center items-start w-[80%] mx-auto">
           <div className="flex w-full">
             <h1 className=" font-bold text-2xl mr-auto">Forms</h1>
-            <CreateFormBtn projectId={project?.id as number} />
+            {user?.id === project?.creator ||
+            project?.editors?.includes(user?.id as number) ? (
+              <CreateFormBtn projectId={project?.id as number} />
+            ) : null}
           </div>
           <div className=" divider divider-neutral my-6" />
 

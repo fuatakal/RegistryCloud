@@ -10,6 +10,7 @@ import { defaultLinks, staffLinks } from '@/constants'
 import userAtom from '@/atoms/userInfoAtom'
 import { Paths } from '@/routes'
 import { RESET } from 'jotai/utils'
+import { User } from '@/types'
 
 export default function Page() {
   const router = useRouter()
@@ -26,7 +27,7 @@ export default function Page() {
           Authorization: `Bearer ${accessToken}`,
         },
       })
-      setUser(response.data)
+      setUser(response.data as User)
 
       if (response.data.is_staff) {
         setNavbarLinks(staffLinks)
