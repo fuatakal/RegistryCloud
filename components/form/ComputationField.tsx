@@ -8,20 +8,20 @@ import {
 import React, { useEffect, useState } from 'react'
 import * as yup from 'yup'
 import { Controller, useForm } from 'react-hook-form'
-
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useFormActions } from '@/hooks/formActions'
-import { Bs123 } from 'react-icons/bs'
+import { BsCalculator } from 'react-icons/bs'
+import { AiOutlineClose, AiOutlinePlus } from 'react-icons/ai'
 
-const type: ElementsType = 'NumberField'
+const type: ElementsType = 'ComputationField'
 
 const extraAttributes = {
-  label: 'Number field',
-  variableName: 'number-field',
+  label: 'Computation Field',
+  variableName: 'computation-field',
   required: false,
   placeHolder: 'Value here...',
-  max: 10000,
-  min: 0,
+  computationType: 'average',
+  inputs: [0, 0],
 }
 
 const propertiesSchema = yup.object().shape({
@@ -29,8 +29,8 @@ const propertiesSchema = yup.object().shape({
   variableName: yup.string().min(3).max(24),
   required: yup.boolean().default(false),
   placeHolder: yup.string().max(50),
-  max: yup.number(),
-  min: yup.number(),
+  computationType: yup.string().oneOf(['average', 'bmi']),
+  inputs: yup.array().of(yup.number()).min(2),
 })
 
 type propestiesSchemaProps = yup.InferType<typeof propertiesSchema>
@@ -68,39 +68,44 @@ const FormComponent: React.FC<{
   submitValue?: (question: number, answer: string) => void
   isInvalid?: boolean
   defaultValue?: string
-}> = ({ elementInstance, submitValue, isInvalid, defaultValue }) => {
+}> = ({ elementInstance, submitValue, isInvalid }) => {
   const element = elementInstance as CustomInstance
 
-  const [value, setValue] = useState(defaultValue || '')
+  const [values, setValues] = useState<number[]>(element.extraAttributes.inputs)
   const [error, setError] = useState(false)
 
   useEffect(() => {
     setError(isInvalid === true)
   }, [isInvalid])
 
-  const { label, required, placeHolder, max, min } = element.extraAttributes
+  const { label, required, placeHolder, computationType } =
+    element.extraAttributes
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const val = e.target.value
-
-    if (!submitValue) return
-
-    const valid = NumberFieldFormElement.validate(element, val)
-    setError(!valid)
-    submitValue(parseInt(element.id), val)
+  const handleInputChange = (index: number, value: number) => {
+    const newValues = values.slice()
+    newValues[index] = value
+    setValues(newValues)
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value
-    const numVal = parseFloat(val)
+  const handleBlur = () => {
+    if (!submitValue) return
+    const valid = validate(element, values.join(','))
+    setError(!valid)
+    if (!valid) return
+    const result = calculateResult()
+    const submissionValue = `${result.toFixed(2)}`
+    submitValue(parseInt(element.id), submissionValue)
+  }
 
-    if (isNaN(numVal) || numVal < min || numVal > max) {
-      setError(true)
-    } else {
-      setError(false)
+  const calculateResult = () => {
+    if (computationType === 'average') {
+      const sum = values.reduce((acc, val) => acc + val, 0)
+      return sum / values.length
+    } else if (computationType === 'bmi' && values.length === 2) {
+      const [weight, height] = values
+      return (weight / (height * height)) * 10000
     }
-
-    setValue(val)
+    return 0
   }
 
   return (
@@ -109,25 +114,24 @@ const FormComponent: React.FC<{
         {label}
         {required && '*'}
       </label>
-      <input
-        className={
-          error
-            ? 'input input-bordered w-full border-red-500'
-            : 'input input-bordered w-full'
-        }
-        placeholder={placeHolder}
-        type="number"
-        max={max}
-        min={min}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        value={value}
-      />
-      {error && (
-        <p className="text-red-500">
-          Value must be between {min} and {max}
-        </p>
-      )}
+      {values.map((value, index) => (
+        <div key={index} className="flex items-center gap-2">
+          <input
+            className={
+              error
+                ? 'input input-bordered w-full border-red-500'
+                : 'input input-bordered w-full'
+            }
+            placeholder={placeHolder}
+            type="number"
+            onChange={(e) => handleInputChange(index, Number(e.target.value))}
+            onBlur={handleBlur}
+          />
+        </div>
+      ))}
+      <div className="mt-2">
+        <label>Result: {calculateResult()}</label>
+      </div>
     </div>
   )
 }
@@ -144,8 +148,8 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
       variableName: element.extraAttributes.variableName,
       placeHolder: element.extraAttributes.placeHolder,
       required: element.extraAttributes.required,
-      max: element.extraAttributes.max,
-      min: element.extraAttributes.min,
+      computationType: element.extraAttributes.computationType,
+      inputs: element.extraAttributes.inputs,
     },
   })
 
@@ -162,8 +166,8 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
         variableName: values.variableName,
         placeHolder: values.placeHolder,
         required: values.required,
-        max: values.max,
-        min: values.min,
+        computationType: values.computationType,
+        inputs: values.inputs,
       },
     })
   }
@@ -219,7 +223,7 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
             <div className="flex flex-col gap-1 my-2">
               <label>Placeholder</label>
               <input
-                type="number"
+                type="text"
                 className="input input-bordered w-full max-w-xs"
                 {...field}
                 onKeyDown={(e) => {
@@ -231,50 +235,91 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
         />
         <Controller
           control={form.control}
-          name="max"
+          name="computationType"
           render={({ field }) => (
             <div className="flex flex-col gap-1 my-2">
-              <label>Max value</label>
-              <input
-                type="number"
-                className="input input-bordered w-full max-w-xs"
-                {...field}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') e.currentTarget.blur()
-                }}
-                onBlur={() => {
-                  const minValue = form.watch('min') ?? 0
-                  if ((field.value ?? 0) < minValue) {
-                    form.setValue('max', Number(minValue) + 1)
-                  }
-                }}
-                min={form.watch('min') ?? 0}
-              />
+              <label>Computation Type</label>
+              <select className="select select-bordered" {...field}>
+                <option value="average">Average</option>
+                <option value="bmi">BMI</option>
+              </select>
             </div>
           )}
         />
         <Controller
           control={form.control}
-          name="min"
+          name="inputs"
           render={({ field }) => (
-            <div className="flex flex-col gap-1 my-2">
-              <label>Min value</label>
-              <input
-                type="number"
-                className="input input-bordered w-full max-w-xs"
-                {...field}
-                onBlur={() => {
-                  const maxValue = form.watch('max') ?? 0
-                  if ((field.value ?? 0) > maxValue) {
-                    form.setValue('min', Number(maxValue) - 1)
-                  }
-                }}
-                min={form.watch('min') ?? 0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') e.currentTarget.blur()
-                }}
-              />
-            </div>
+            <>
+              <div className="flex justify-between items-center">
+                <label>Inputs</label>
+                {(form.watch('computationType') === 'bmi' &&
+                  (form.watch('inputs')?.length as number) < 3) ||
+                  (form.watch('computationType') !== 'bmi' && (
+                    <button
+                      className="btn btn-outline btn-accent gap-2"
+                      onClick={(e) => {
+                        e.preventDefault() // avoid submit
+                        form.setValue('inputs', field.value?.concat(0))
+                      }}
+                    >
+                      <AiOutlinePlus />
+                      Add
+                    </button>
+                  ))}
+              </div>
+              <div className="flex flex-col gap-2 mt-2">
+                {form.watch('computationType') !== 'bmi' &&
+                  form.watch('inputs')?.map((input, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between gap-1"
+                    >
+                      <input
+                        placeholder={`${form.watch('placeHolder')}-${index}`}
+                        type="text"
+                        className="input input-bordered w-[12rem]"
+                        disabled
+                      />
+                      {(form.watch('inputs')?.length as number) > 2 && (
+                        <button
+                          className="btn btn-ghost"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            const newInputs = Array.isArray(field.value)
+                              ? [...field.value]
+                              : []
+                            newInputs.splice(index, 1)
+                            field.onChange(newInputs)
+                          }}
+                        >
+                          <AiOutlineClose />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                {form.watch('computationType') === 'bmi' && (
+                  <>
+                    <div className="flex items-center justify-between gap-1">
+                      <input
+                        placeholder="Weight"
+                        type="text"
+                        className="input input-bordered w-[8rem]"
+                        disabled
+                      />
+                    </div>
+                    <div className="flex items-center justify-between gap-1">
+                      <input
+                        placeholder="Height"
+                        type="text"
+                        className="input input-bordered w-[8rem]"
+                        disabled
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
           )}
         />
         <Controller
@@ -297,7 +342,19 @@ const PropertiesComponent: React.FC<DesignerComponentProps> = ({
   )
 }
 
-const NumberFieldFormElement: FormElement = {
+const validate = (
+  formElement: FormElementInstance,
+  currentValue: string
+): boolean => {
+  const element = formElement as CustomInstance
+  if (element.extraAttributes.required) {
+    return currentValue.length > 0
+  }
+
+  return true
+}
+
+const ComputationFieldFormElement: FormElement = {
   type,
   designerComponent: DesignerComponent,
   formComponent: FormComponent,
@@ -308,27 +365,10 @@ const NumberFieldFormElement: FormElement = {
     extraAttributes,
   }),
   designerBtnElement: {
-    icon: Bs123,
-    label: 'Number Field',
+    icon: BsCalculator,
+    label: 'Computation Field',
   },
-  validate: (
-    formElement: FormElementInstance,
-    currentValue: string
-  ): boolean => {
-    const element = formElement as CustomInstance
-    if (element.extraAttributes.required) {
-      return currentValue.length > 0
-    }
-    if (
-      isNaN(Number(currentValue)) ||
-      Number(currentValue) < element.extraAttributes.min ||
-      Number(currentValue) > element.extraAttributes.max
-    ) {
-      return false
-    }
-
-    return true
-  },
+  validate,
 }
 
-export default NumberFieldFormElement
+export default ComputationFieldFormElement

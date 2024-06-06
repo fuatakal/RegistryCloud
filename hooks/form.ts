@@ -6,16 +6,25 @@ export const useFormHooks = () => {
   const [token] = useAtom(tokenAtom)
 
   const getFormById = async (id: number) => {
-    const response = await fetch(`http://localhost:8000/forms/${id}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    return response.json()
+    if (!token) throw new Error('No token available')
+    try {
+      const response = await fetch(`http://localhost:8000/forms/${id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      return response.json()
+    } catch (error) {
+      console.error('createForm error:', error)
+    }
   }
 
-  const createForm = async (name: string, description: string) => {
+  const createForm = async (
+    name: string,
+    description: string,
+    master_form_id?: number
+  ) => {
     if (!token) throw new Error('No token available')
     try {
       const response = await fetch(`http://localhost:8000/forms/`, {
@@ -24,7 +33,12 @@ export const useFormHooks = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name, description }),
+        body: JSON.stringify({
+          name,
+          description,
+          master_form_id,
+          is_master: master_form_id === undefined,
+        }),
       })
       const data = await response.json()
       console.log(data)
@@ -84,6 +98,26 @@ export const useFormHooks = () => {
     }
   }
 
+  const getFormsOfMaster = async (master_form_id: number) => {
+    if (!token) throw new Error('No token available')
+    try {
+      const response = await fetch(
+        `http://localhost:8000/forms/detail_forms_of/${master_form_id}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      const data = await response.json()
+      return data
+    } catch (error) {
+      console.error('getForms error:', error)
+    }
+  }
+
   const getAttendedForms = async () => {
     if (!token) throw new Error('No token available')
     try {
@@ -123,6 +157,7 @@ export const useFormHooks = () => {
 
   const submitForm = async (answers: SubmitFormProps[], formId: string) => {
     if (!token) throw new Error('No token available')
+    console.log(answers)
     try {
       await fetch(`http://localhost:8000/forms/fill/${formId}`, {
         method: 'POST',
@@ -167,5 +202,6 @@ export const useFormHooks = () => {
     getFormAnswers,
     submitForm,
     deleteForm,
+    getFormsOfMaster,
   }
 }

@@ -1,3 +1,5 @@
+'use client'
+
 import { atomWithStorage, createJSONStorage } from 'jotai/utils'
 
 const storage = createJSONStorage<string | null>(() => localStorage)

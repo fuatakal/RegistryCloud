@@ -1,7 +1,7 @@
 'use client'
 
 import userAtom from '@/atoms/userInfoAtom'
-import DashboardFormItem from '@/components/DashboardFormItem'
+import DashboardAttendedFormItem from '@/components/DashboardAttendedFormItem'
 import ProjectItem from '@/components/ProjectItem'
 import { useFormHooks } from '@/hooks/form'
 import { useProjectHooks } from '@/hooks/project'
@@ -11,12 +11,7 @@ import { useRouter } from 'next/navigation'
 
 import React, { useEffect, useState } from 'react'
 
-interface ProfilePageProps {
-  params: { id: string }
-}
-
-export default function ProfilePage({ params }: ProfilePageProps) {
-  const { id } = params
+export default function ProfilePage() {
   const router = useRouter()
   const [user] = useAtom(userAtom)
 
@@ -70,12 +65,12 @@ export default function ProfilePage({ params }: ProfilePageProps) {
         {user?.is_staff ? (
           <div className="border rounded-lg shadow-lg p-4 w-[41rem]">
             <p className="font-bold text-black mb-2">Projects:</p>
-            <ul>
+            <ul className=" pr-8">
               {projects.map((project) => (
                 <ProjectItem
                   key={project.id}
-                  name={project.attributes.name}
-                  description={project.attributes.desc}
+                  name={project.attributes?.name as string}
+                  description={project.attributes?.desc as string}
                 />
               ))}
             </ul>
@@ -83,13 +78,11 @@ export default function ProfilePage({ params }: ProfilePageProps) {
         ) : (
           <div className="border rounded-lg shadow-lg p-4 w-[41rem]">
             <p className="font-bold text-black mb-2">Attended Forms:</p>
-            <ul>
+            <ul className=" pr-8">
               {attendedforms.map((form) => (
-                <DashboardFormItem
+                <DashboardAttendedFormItem
                   key={form.form}
-                  name={form.formName || ''}
-                  description={form.formDescription || ''}
-                  isSubmitted={form.isSubmitted}
+                  form={form}
                   onClick={() => {
                     handleClickOnForm(form.form || 0)
                   }}

@@ -12,6 +12,8 @@ import { useAtom } from 'jotai'
 import userAtom from '@/atoms/userInfoAtom'
 import { useFormHooks } from '@/hooks/form'
 import currentFormAtom from '@/atoms/currentFormAtom'
+import Loading from './Loading'
+import { alertStateAtom } from '@/atoms/alertAtom'
 
 interface PublishBtnProps {
   formId: number
@@ -20,10 +22,13 @@ interface PublishBtnProps {
 const PublishBtn = ({ formId }: PublishBtnProps) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [users, setUsers] = useState<User[]>([])
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([])
   const [loading, setLoading] = useState<boolean>(true)
+  const [searchTerm, setSearchTerm] = useState<string>('')
 
   const [currentUser] = useAtom(userAtom)
   const [currentForm] = useAtom(currentFormAtom)
+  const [, setAlert] = useAtom(alertStateAtom)
 
   const handleToggle = () => setIsOpen((prev) => !prev)
 
@@ -45,25 +50,41 @@ const PublishBtn = ({ formId }: PublishBtnProps) => {
 
   useEffect(() => {
     const getAllUsers = async () => {
-      setUsers(await useGetAllUser())
+      const allUsers = await useGetAllUser()
+      setUsers(allUsers)
+      setFilteredUsers(allUsers)
       setLoading(false)
     }
     getAllUsers()
   }, [])
 
   useEffect(() => {
-    form.reset({ users: [] })
+    form.reset({
+      users: currentForm?.attenders?.map((attender) => attender.attender),
+    })
   }, [form, isOpen])
+
+  useEffect(() => {
+    const result = users.filter((user) =>
+      user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    setFilteredUsers(result)
+  }, [searchTerm, users])
 
   const handleSubmit = async (values: publishSchemaProps) => {
     const parsedUsers = values.users.map((userId) => {
       return { attender: userId }
     })
     await publishForm(parsedUsers, formId)
-    handleToggle()
+    window.location.reload()
+    setAlert({
+      isVisible: true,
+      message: `Form published!`,
+      variant: 'success',
+    })
   }
 
-  if (!formId || !currentUser || loading) return
+  if (!formId || !currentUser || loading) return <Loading />
 
   return (
     <div>
@@ -76,7 +97,7 @@ const PublishBtn = ({ formId }: PublishBtnProps) => {
       <Modal isOpen={isOpen}>
         <div className="flex flex-col justify-center">
           <div className="flex justify-between ">
-            <h3 className="font-bold text-lg">Create Form</h3>
+            <h3 className="font-bold text-lg">Publish Form</h3>
             <button
               className="btn btn-circle btn-xs btn-outline"
               onClick={handleToggle}
@@ -84,7 +105,15 @@ const PublishBtn = ({ formId }: PublishBtnProps) => {
               X
             </button>
           </div>
-          <div className=" divider divider-neutral mb-6" />
+          <div className="divider divider-neutral mb-6" />
+
+          <input
+            type="text"
+            className="input input-bordered mb-4"
+            placeholder="Search user"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
 
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
@@ -95,20 +124,25 @@ const PublishBtn = ({ formId }: PublishBtnProps) => {
               name="users"
               render={({ field }) => (
                 <div>
-                  {users
-                    .filter((user) => user.email !== currentUser.email)
+                  {filteredUsers
+                    .filter(
+                      (user) =>
+                        user.email !== currentUser.email && !user.is_staff
+                    )
                     .map((user, index) => (
                       <label key={index} className="label cursor-pointer">
                         <span className="label-text">{user.email}</span>
                         <input
+                          {...field}
                           onChange={(e) => {
                             const { checked, value } = e.target
+                            const numberValue = Number(value)
                             if (checked) {
-                              field.onChange([...field.value, value])
+                              field.onChange([...field.value, numberValue])
                             } else {
                               field.onChange(
                                 field.value.filter(
-                                  (item) => item !== Number(value)
+                                  (item) => item !== numberValue
                                 )
                               )
                             }
@@ -116,6 +150,7 @@ const PublishBtn = ({ formId }: PublishBtnProps) => {
                           type="checkbox"
                           className="checkbox"
                           value={user.id}
+                          checked={field.value.includes(user.id)}
                         />
                       </label>
                     ))}

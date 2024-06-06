@@ -12,6 +12,7 @@ const FormElementsSidebar = () => {
       <SidebarBtnElement formElement={FormElements.SelectField} />
       <SidebarBtnElement formElement={FormElements.CheckBoxField} />
       <SidebarBtnElement formElement={FormElements.ConditionalSelectField} />
+      <SidebarBtnElement formElement={FormElements.ComputationField} />
     </>
   )
 }

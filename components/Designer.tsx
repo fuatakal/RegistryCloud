@@ -123,7 +123,7 @@ const Designer = () => {
       >
         <div
           ref={droppable.setNodeRef}
-          className={`drop-zone ${droppable.isOver && 'ring-2 ring-primary/30'}`}
+          className={`drop-zone ${droppable.isOver && 'ring-2 ring-primary/30'} max-h-[800px]`}
         >
           {droppable.isOver && elements.length === 0 && (
             <div className="p-4 w-full">

@@ -74,6 +74,7 @@ export const useProjectHooks = () => {
 
   const editProject = async (project: Project) => {
     if (!token) throw new Error('No token available')
+    console.log(project)
     try {
       const response = await fetch(
         `http://localhost:8000/forms/projects/${project.id}`,
@@ -92,6 +93,53 @@ export const useProjectHooks = () => {
     }
   }
 
+  const addExecutiveToProject = async (
+    projectId: number,
+    executive_ids?: number[],
+    editor_ids?: number[]
+  ) => {
+    if (!token) throw new Error('No token available')
+    try {
+      const response = await fetch(
+        `http://localhost:8000/forms/projects/${projectId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ executive_ids, editor_ids }),
+        }
+      )
+      return response.json()
+    } catch (error) {
+      console.error('editForm error:', error)
+    }
+  }
+
+  const addFormToProject = async (
+    new_form_ids: number[],
+    projectId: number
+  ) => {
+    if (!token) throw new Error('No token available')
+    try {
+      const response = await fetch(
+        `http://localhost:8000/forms/projects/${projectId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ new_form_ids }),
+        }
+      )
+      return response.json()
+    } catch (error) {
+      console.error('editForm error:', error)
+    }
+  }
+
   return {
     getProjects,
     getProject,
@@ -99,5 +147,7 @@ export const useProjectHooks = () => {
     getProjectForms,
     createProject,
     editProject,
+    addFormToProject,
+    addExecutiveToProject,
   }
 }

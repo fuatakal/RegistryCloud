@@ -3,77 +3,67 @@ import Modal from './Modal'
 import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useFormHooks } from '@/hooks/form'
-import { useRouter } from 'next/navigation'
 import { useProjectHooks } from '@/hooks/project'
-import { useAtom } from 'jotai'
-import currentFormAtom from '@/atoms/currentFormAtom'
+import { Project } from '@/types'
+import { FaEdit } from 'react-icons/fa'
 
-interface CreateFormBtnProps {
+interface EditProjectBtnProps {
+  defaultName: string
+  defaultDesc: string
   projectId: number
-  master_form_id?: number
 }
 
-const CreateFormBtn = ({ projectId, master_form_id }: CreateFormBtnProps) => {
-  const router = useRouter()
+const EditProjectBtn = ({
+  defaultName,
+  defaultDesc,
+  projectId,
+}: EditProjectBtnProps) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const handleToggle = () => setIsOpen((prev) => !prev)
 
-  const [, setForm] = useAtom(currentFormAtom)
+  const { editProject } = useProjectHooks()
 
-  const { createForm } = useFormHooks()
-
-  const { addFormToProject } = useProjectHooks()
-
-  const formCreateSchema = yup.object().shape({
+  const ProjectEditSchema = yup.object().shape({
     name: yup.string().min(2).max(50),
     description: yup.string().min(2),
   })
 
-  type formCreateSchemaProps = yup.InferType<typeof formCreateSchema>
+  type ProjectEditSchemaProps = yup.InferType<typeof ProjectEditSchema>
 
-  const form = useForm<formCreateSchemaProps>({
-    resolver: yupResolver(formCreateSchema),
+  const Project = useForm<ProjectEditSchemaProps>({
+    resolver: yupResolver(ProjectEditSchema),
     mode: 'onSubmit',
     defaultValues: {
-      name: '',
-      description: '',
+      name: defaultName,
+      description: defaultDesc,
     },
   })
 
   useEffect(() => {
-    form.reset({ name: '', description: '' })
-  }, [form, isOpen])
+    Project.reset({ name: defaultName, description: defaultDesc })
+  }, [Project, isOpen])
 
-  const handleSubmit = async (values: formCreateSchemaProps) => {
-    const responseData = await createForm(
-      values.name as string,
-      values.description as string,
-      master_form_id
-    )
-    setForm({
-      name: values.name,
-      description: values.description,
-      master_form_id,
-    })
-    const idArray = Array<number>()
-    idArray.push(responseData.id)
-    await addFormToProject(idArray, projectId)
-    router.push(`/form-builder/${responseData?.id}`)
+  const handleSubmit = async (values: ProjectEditSchemaProps) => {
+    await editProject({
+      id: projectId,
+      attributes: {
+        name: values.name as string,
+        desc: values.description as string,
+      },
+    } as Project)
     handleToggle()
+    window.location.reload()
   }
 
   return (
-    <div>
-      <button className="btn  btn-primary" onClick={() => setIsOpen(true)}>
-        {master_form_id ? 'Create Detail Form+' : 'Create Form+'}
+    <div className="">
+      <button className="btn btn-accent" onClick={() => setIsOpen(true)}>
+        Edit Project <FaEdit />
       </button>
       <Modal isOpen={isOpen}>
         <div className="flex flex-col justify-center">
           <div className="flex justify-between ">
-            <h3 className="font-bold text-lg">
-              {master_form_id ? 'Create Detail Form' : 'Create Form'}
-            </h3>
+            <h3 className="font-bold text-lg">Edit Project</h3>
             <button
               className="btn btn-circle btn-xs btn-outline"
               onClick={handleToggle}
@@ -84,11 +74,11 @@ const CreateFormBtn = ({ projectId, master_form_id }: CreateFormBtnProps) => {
           <div className=" divider divider-neutral mb-6" />
 
           <form
-            onSubmit={form.handleSubmit(handleSubmit)}
+            onSubmit={Project.handleSubmit(handleSubmit)}
             className="flex flex-col gap-4"
           >
             <Controller
-              control={form.control}
+              control={Project.control}
               name="name"
               render={({ field }) => (
                 <div className="flex flex-col gap-1 my-2 w-full px-2">
@@ -103,7 +93,7 @@ const CreateFormBtn = ({ projectId, master_form_id }: CreateFormBtnProps) => {
               )}
             />
             <Controller
-              control={form.control}
+              control={Project.control}
               name="description"
               render={({ field }) => (
                 <div className="flex flex-col gap-1 my-2 w-full px-2">
@@ -119,7 +109,7 @@ const CreateFormBtn = ({ projectId, master_form_id }: CreateFormBtnProps) => {
               className="btn btn-primary btn-outline w-[10rem] place-self-end mt-4"
               type="submit"
             >
-              Create Form
+              Edit Project
             </button>
           </form>
         </div>
@@ -128,4 +118,4 @@ const CreateFormBtn = ({ projectId, master_form_id }: CreateFormBtnProps) => {
   )
 }
 
-export default CreateFormBtn
+export default EditProjectBtn

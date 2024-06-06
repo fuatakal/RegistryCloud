@@ -1,3 +1,5 @@
+'use client'
+
 import FormBuilder from '@/components/FormBuilder'
 import React from 'react'
 
@@ -8,7 +10,11 @@ interface BuilderProps {
 async function BuilderPage({ params }: BuilderProps) {
   const { id } = params
 
-  return <FormBuilder id={id} />
+  return (
+    <>
+      <FormBuilder id={id} />
+    </>
+  )
 }
 
 export default BuilderPage

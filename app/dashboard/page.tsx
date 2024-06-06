@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import { AttendedForm, Project } from '@/types'
-import DashboardFormItem from '@/components/DashboardFormItem'
 import { useAtom } from 'jotai'
 import userAtom from '@/atoms/userInfoAtom'
 import ProjectItem from '@/components/ProjectItem'
@@ -12,8 +11,10 @@ import CreateProjectBtn from '@/components/CreateProjectBtn'
 import tokenAtom from '@/atoms/tokenAtom'
 import { useProjectHooks } from '@/hooks/project'
 import { useFormHooks } from '@/hooks/form'
+import Loading from '@/components/Loading'
+import DashboardAttendedFormItem from '@/components/DashboardAttendedFormItem'
 
-export default function Home() {
+export default function Dashboard() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [projects, setProjects] = useState<Project[]>([])
@@ -65,10 +66,7 @@ export default function Home() {
   return (
     <main>
       {loading ? (
-        // Loading screen while checking token
-        <div className="min-h-screen flex justify-center items-center">
-          <p>Loading...</p>
-        </div>
+        <Loading />
       ) : (
         // Content after token check
         <div className="min-h-screen flex p-12 justify-center">
@@ -83,6 +81,7 @@ export default function Home() {
             </div>
 
             <div className="divider divider-neutral mb-8" />
+            <h1 className=" text-lg font-bold mb-6"> New Forms</h1>
 
             <ul>
               {user?.is_staff
@@ -96,18 +95,40 @@ export default function Home() {
                       }}
                     />
                   ))
-                : attendedforms.map((form) => (
-                    <DashboardFormItem
-                      key={form.form}
-                      name={form.formName || ''}
-                      description={form.formDescription || ''}
-                      isSubmitted={form.isSubmitted}
-                      onClick={() => {
-                        handleClickOnForm(form.form || 0)
-                      }}
-                    />
-                  ))}
+                : attendedforms.map(
+                    (form) =>
+                      !form.isSubmitted && (
+                        <DashboardAttendedFormItem
+                          key={form.form}
+                          isSubmitted={form.isSubmitted}
+                          form={form}
+                          onClick={() => {
+                            handleClickOnForm(form.form || 0)
+                          }}
+                        />
+                      )
+                  )}
             </ul>
+            {!user?.is_staff && (
+              <>
+                <h1 className=" text-lg font-bold mb-6"> Submitted Forms</h1>
+                <ul>
+                  {attendedforms.map(
+                    (form) =>
+                      form.isSubmitted && (
+                        <DashboardAttendedFormItem
+                          key={form.form}
+                          isSubmitted={form.isSubmitted}
+                          form={form}
+                          onClick={() => {
+                            handleClickOnForm(form.form || 0)
+                          }}
+                        />
+                      )
+                  )}
+                </ul>
+              </>
+            )}
           </div>
         </div>
       )}
